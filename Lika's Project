@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lika's Project ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Secular+One&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+--b1:#EFF6FF;--b2:#DBEAFE;--b3:#BFDBFE;--b4:#93C5FD;--b5:#60A5FA;--b6:#3B82F6;--b7:#2563EB;--b8:#1D4ED8;--b9:#1E40AF;
+--pink:#F9A8D4;--pkd:#EC4899;--grn:#22C55E;--grns:#BBF7D0;--red:#EF4444;--gold:#FDE68A;--goldd:#F59E0B;
+--w:#FFF;--cr:#F8FAFF;--g50:#F9FAFB;--g100:#F3F4F6;--g200:#E5E7EB;--g300:#D1D5DB;--g400:#9CA3AF;--g500:#6B7280;--g600:#4B5563;--g700:#374151;--g800:#1F2937;
+--sh:0 4px 14px rgba(30,64,175,.08);--shl:0 8px 30px rgba(30,64,175,.1);--shg:0 4px 20px rgba(59,130,246,.22);
+--r:14px;--rl:20px;--rx:28px;--rf:9999px;--tr:.3s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--cr);color:var(--g800);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 0%,rgba(59,130,246,.05),transparent 50%),radial-gradient(ellipse at 85% 100%,rgba(249,168,212,.04),transparent 50%);pointer-events:none;z-index:0}
+.heb{font-family:'Secular One','Nunito',sans-serif}
+.eng{font-family:'Playfair Display',serif;direction:ltr;text-align:left}
+.bgd{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bgd .o{position:absolute;border-radius:50%;opacity:.06;animation:fl 24s ease-in-out infinite}
+.bgd .o:nth-child(1){width:260px;height:260px;background:var(--b5);top:-60px;right:-40px}
+.bgd .o:nth-child(2){width:160px;height:160px;background:var(--pink);bottom:10%;left:-30px;animation-delay:-7s}
+.bgd .o:nth-child(3){width:100px;height:100px;background:var(--b7);top:40%;right:5%;animation-delay:-14s}
+@keyframes fl{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(15px,-20px) scale(1.04)}66%{transform:translate(-10px,15px) scale(.96)}}
+.app{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:12px 12px 96px}
+.tb{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;margin-bottom:16px;background:var(--w);border-radius:var(--rl);box-shadow:var(--sh);gap:8px;flex-wrap:wrap}
+.tb .logo{display:flex;align-items:center;gap:8px;font-family:'Secular One',sans-serif;font-size:1.1rem;color:var(--b7)}
+.tb .logo .ic{width:34px;height:34px;background:linear-gradient(135deg,var(--b6),var(--b8));border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff;box-shadow:var(--shg)}
+.sts{display:flex;gap:8px;font-size:.82rem;font-weight:700}
+.si{display:flex;align-items:center;gap:3px;padding:4px 9px;background:var(--b1);border-radius:var(--rf)}
+.sc{display:none;animation:si .4s ease-out}.sc.on{display:block}
+@keyframes si{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.motto{background:linear-gradient(135deg,var(--b6),var(--b8) 60%,var(--b9));border-radius:var(--rx);padding:28px 20px 24px;color:#fff;text-align:center;margin-bottom:18px;box-shadow:var(--shl);position:relative;overflow:hidden}
+.motto::before{content:'';position:absolute;top:-40%;right:-20%;width:160px;height:160px;background:rgba(255,255,255,.1);border-radius:50%}
+.motto .qt{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;font-style:italic;position:relative;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.12);line-height:1.5}
+.motto .sub{font-size:.85rem;opacity:.85;margin-top:8px;position:relative;z-index:1}
+.motto .icons{position:relative;z-index:1;margin-top:10px;font-size:1.2rem;letter-spacing:10px;opacity:.6}
+.pcard{background:var(--w);border-radius:var(--rx);padding:18px;text-align:center;box-shadow:var(--sh);margin-bottom:18px}
+.pcard h3{font-family:'Secular One',sans-serif;color:var(--g600);margin-bottom:10px;font-size:.9rem}
+.rw{position:relative;width:110px;height:110px;margin:0 auto 6px}
+.rw svg{transform:rotate(-90deg)}
+.rbg{fill:none;stroke:var(--b1);stroke-width:10}.rfill{fill:none;stroke:var(--b6);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.rtxt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.3rem;font-weight:900;color:var(--b7)}
+.pcard .enc{font-size:.82rem;color:var(--g500);margin-top:3px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+.ft{background:var(--w);border-radius:var(--rl);padding:18px 10px;text-align:center;cursor:pointer;transition:var(--tr);box-shadow:0 1px 4px rgba(30,64,175,.05);border:2px solid transparent;overflow:hidden;position:relative}
+.ft::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--b5);transform:scaleX(0);transition:transform .3s}
+.ft:hover::before{transform:scaleX(1)}.ft:hover{transform:translateY(-3px);box-shadow:var(--sh);border-color:rgba(59,130,246,.08)}
+.ft:active{transform:scale(.97)}.ft .fi{font-size:1.7rem;margin-bottom:5px}.ft .fn{font-family:'Secular One',sans-serif;font-size:.82rem;color:var(--g700);margin-bottom:2px}.ft .fd{font-size:.68rem;color:var(--g400)}
+.card{background:var(--w);border-radius:var(--rx);padding:22px 18px;box-shadow:var(--sh);margin-bottom:16px}
+.qh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:6px}
+.qh .bk{background:var(--w);border:none;border-radius:var(--rf);width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:var(--tr)}
+.qh .bk:hover{background:var(--g50);transform:scale(1.08)}
+.qh .inf{text-align:center;flex:1}
+.qh .bdg{display:inline-block;padding:3px 12px;border-radius:var(--rf);font-size:.72rem;font-weight:700;background:var(--b1);color:var(--b7)}
+.qh .sv{background:var(--w);border:2px solid var(--g200);border-radius:var(--rf);padding:5px 12px;font-size:.72rem;font-weight:700;cursor:pointer;transition:var(--tr);color:var(--g500);font-family:'Secular One',sans-serif}
+.qh .sv:hover{border-color:var(--b5);color:var(--b6)}
+.tmb{background:var(--g100);border-radius:var(--rf);height:6px;margin-bottom:16px;overflow:hidden}
+.tmb .tf{height:100%;border-radius:var(--rf);background:linear-gradient(90deg,var(--b5),var(--b7));transition:width 1s linear}
+.tmb .tf.wrn{background:linear-gradient(90deg,var(--goldd),var(--goldd))}.tmb .tf.dng{background:linear-gradient(90deg,var(--pkd),var(--red))}
+.td{text-align:center;font-size:.78rem;font-weight:700;color:var(--g500);margin-bottom:10px;margin-top:-8px}
+.td.wrn{color:var(--goldd)}.td.dng{color:var(--red);animation:pls 1s infinite}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.5}}
+.qc{background:var(--w);border-radius:var(--rx);padding:22px 18px;box-shadow:var(--sh);margin-bottom:14px;animation:ci .4s ease-out}
+@keyframes ci{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.qc .tp{display:inline-block;padding:3px 10px;border-radius:var(--rf);font-size:.68rem;font-weight:700;margin-bottom:8px;background:var(--b1);color:var(--b7)}
+.qc .qt2{font-family:'Playfair Display',serif;font-size:1.05rem;line-height:1.7;color:var(--g800);direction:ltr;text-align:left;margin-bottom:14px}
+.qc .qt2 .bl{display:inline-block;min-width:55px;border-bottom:3px dashed var(--b4);margin:0 3px}
+.psg{background:var(--g50);border-radius:var(--r);padding:14px;margin-bottom:14px;border-right:4px solid var(--b5);max-height:220px;overflow-y:auto;font-family:'Playfair Display',serif;font-size:.92rem;line-height:1.8;direction:ltr;text-align:left;color:var(--g700)}
+.ops{display:flex;flex-direction:column;gap:7px}
+.op{display:flex;align-items:center;gap:10px;width:100%;padding:12px 13px;background:var(--g50);border:2px solid var(--g200);border-radius:var(--r);cursor:pointer;transition:var(--tr);font-family:'Playfair Display',serif;font-size:.92rem;direction:ltr;text-align:left;color:var(--g700)}
+.op:hover{border-color:var(--b5);background:var(--b1);transform:translateX(3px)}
+.op .ol{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:6px;background:var(--w);font-family:'Nunito',sans-serif;font-weight:800;font-size:.75rem;color:var(--g500);border:2px solid var(--g200);transition:var(--tr)}
+.op:hover .ol{border-color:var(--b5);color:var(--b7)}
+.op.sel{border-color:var(--b6);background:var(--b1)}.op.sel .ol{background:var(--b6);color:#fff;border-color:var(--b6)}
+.op.ok{border-color:var(--grn);background:rgba(34,197,94,.07);pointer-events:none}.op.ok .ol{background:var(--grn);color:#fff;border-color:var(--grn)}
+.op.wr{border-color:var(--red);background:rgba(239,68,68,.05);pointer-events:none}.op.wr .ol{background:var(--red);color:#fff;border-color:var(--red)}
+.op.dis{pointer-events:none;opacity:.4}
+.hint-btn{display:inline-block;padding:6px 14px;border:2px solid var(--b3);border-radius:var(--rf);background:var(--b1);color:var(--b6);font-size:.78rem;font-weight:700;cursor:pointer;margin-bottom:10px;transition:var(--tr)}
+.hint-btn:hover{background:var(--b2);border-color:var(--b5)}
+.hint-text{font-size:.85rem;color:var(--b7);background:var(--b1);padding:8px 12px;border-radius:var(--r);margin-bottom:10px;display:none;direction:ltr;text-align:left;font-style:italic}
+.cb{display:block;width:100%;padding:13px;border:none;border-radius:var(--r);background:linear-gradient(135deg,var(--b6),var(--b8));color:#fff;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;cursor:pointer;margin-top:10px;box-shadow:var(--shg);transition:var(--tr)}
+.cb:hover{transform:translateY(-2px)}.cb:disabled{background:var(--g300);cursor:not-allowed;box-shadow:none;transform:none}
+.cb2{padding:10px 20px;border:2px solid var(--g200);border-radius:var(--rf);background:var(--w);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:var(--tr);color:var(--g600)}
+.cb2:hover{border-color:var(--b5);color:var(--b7);background:var(--b1)}
+.cb2.pri{background:linear-gradient(135deg,var(--b6),var(--b8));color:#fff;border:none;box-shadow:var(--shg)}
+.tst{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(80px);padding:10px 22px;border-radius:var(--rf);font-weight:800;font-size:.85rem;z-index:100;opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
+.tst.sh{opacity:1;transform:translateX(-50%) translateY(0)}
+.tst.tok{background:var(--grn);color:#fff}.tst.tno{background:var(--b7);color:#fff}
+/* Vocab card */
+.fc{background:var(--w);border-radius:var(--rx);min-height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;box-shadow:var(--sh);margin-bottom:14px;transition:.4s ease}
+.fc .wd{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--g800);margin-bottom:4px}
+.fc .ph{font-size:.82rem;color:var(--g400);margin-bottom:10px}
+.fc .mn{font-family:'Secular One',sans-serif;font-size:1rem;color:var(--b7);margin-bottom:6px}
+.fc .ex{font-family:'Playfair Display',serif;font-size:.88rem;font-style:italic;color:var(--g500);direction:ltr}
+.fc .hp{font-size:.72rem;color:var(--g400);margin-top:10px}
+.vbtn-row{display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+.vbtn-row button{padding:9px 18px;border:2px solid var(--g200);border-radius:var(--rf);background:var(--w);font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:var(--tr);color:var(--g600)}
+.vbtn-row .kn:hover{border-color:var(--grn);color:#166534;background:rgba(34,197,94,.07)}
+.vbtn-row .dk:hover{border-color:var(--b6);color:var(--b7);background:var(--b1)}
+.vbtn-row .rv:hover{border-color:var(--pkd);color:var(--pkd)}
+.vbtn-row .nx:hover{border-color:var(--b5);color:var(--b7);background:var(--b1)}
+/* Voice / Chat */
+.mc{width:70px;height:70px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--b5),var(--b8));color:#fff;font-size:1.6rem;cursor:pointer;box-shadow:var(--shg);transition:.5s cubic-bezier(.34,1.56,.64,1);position:relative;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+.mc:hover{transform:scale(1.1)}.mc.rec{animation:mp 1.5s ease-in-out infinite;background:linear-gradient(135deg,var(--pkd),var(--red));box-shadow:0 4px 24px rgba(236,72,153,.35)}
+@keyframes mp{0%,100%{box-shadow:0 0 0 0 rgba(236,72,153,.35)}50%{box-shadow:0 0 0 16px rgba(236,72,153,0)}}
+.mc .rp{position:absolute;inset:-6px;border:3px solid rgba(59,130,246,.2);border-radius:50%;animation:ro 2s ease-out infinite;pointer-events:none}
+.mc.rec .rp{border-color:rgba(236,72,153,.2)}
+@keyframes ro{0%{transform:scale(.8);opacity:1}100%{transform:scale(1.5);opacity:0}}
+.chat-log{max-height:300px;overflow-y:auto;padding:10px;background:var(--g50);border-radius:var(--r);margin-bottom:12px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{padding:10px 14px;border-radius:var(--r);max-width:85%;font-size:.88rem;line-height:1.5;direction:ltr;text-align:left}
+.chat-msg.bot{background:var(--b1);color:var(--g700);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg.user{background:var(--b6);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-msg.eval{background:var(--gold);color:var(--g800);align-self:flex-start;font-size:.82rem;border:1px solid var(--goldd);font-weight:600}
+.chat-input{display:flex;gap:8px;margin-bottom:10px}
+.chat-input input{flex:1;padding:10px 14px;border:2px solid var(--g200);border-radius:var(--rf);font-family:'Nunito',sans-serif;font-size:.88rem;direction:ltr;text-align:left}
+.chat-input input:focus{outline:none;border-color:var(--b5)}
+.chat-input button{padding:10px 16px;border:none;border-radius:var(--rf);background:var(--b6);color:#fff;font-weight:800;cursor:pointer;font-size:.85rem}
+.lvs{background:var(--w);border-radius:var(--rx);padding:22px 16px;box-shadow:var(--sh);margin-bottom:18px}
+.lvs h3{font-family:'Secular One',sans-serif;text-align:center;margin-bottom:4px;color:var(--g700);font-size:1rem}
+.lvs .ld{text-align:center;font-size:.8rem;color:var(--g400);margin-bottom:12px}
+.lvs .rec{text-align:center;font-size:.78rem;color:var(--b7);font-weight:700;margin-bottom:10px;padding:5px 12px;background:var(--b1);border-radius:var(--rf);display:inline-block}
+.lbs{display:flex;flex-direction:column;gap:7px}
+.lb{display:flex;align-items:center;gap:10px;padding:11px 13px;border:2px solid var(--g200);border-radius:var(--r);background:var(--w);cursor:pointer;transition:var(--tr);text-align:right}
+.lb:hover{border-color:var(--b5);background:var(--b1);transform:translateX(-3px)}
+.lb.rlv{border-color:var(--b4);background:var(--b1)}
+.lb .li{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;background:var(--b2);color:var(--b7)}
+.lb .ln{font-weight:800;font-size:.88rem;color:var(--g700)}.lb .ldd{font-size:.7rem;color:var(--g400)}
+/* Results */
+.rc{background:var(--w);border-radius:var(--rx);padding:26px 20px;text-align:center;box-shadow:var(--shl);margin-bottom:18px}
+.rc .tr{font-size:3rem;margin-bottom:6px}.rc h2{font-family:'Secular One',sans-serif;font-size:1.3rem;margin-bottom:3px}
+.rc .sb{font-size:2.3rem;font-weight:900;color:var(--b7);margin:6px 0}
+.rc .xp{display:inline-block;padding:5px 14px;background:var(--b2);color:var(--b8);border-radius:var(--rf);font-weight:800;margin:6px 0}
+.rc .lrc{margin-top:12px;padding:8px 12px;background:var(--b1);border-radius:var(--r);font-size:.82rem;color:var(--b7)}
+.rb{display:flex;gap:7px;justify-content:center;margin:12px 0;flex-wrap:wrap}
+.rb .ri{padding:6px 12px;background:var(--g50);border-radius:var(--r);font-size:.8rem}
+.rb .ri .rl{color:var(--g400);display:block;font-size:.68rem}.rb .ri .rv{font-weight:800;color:var(--g700)}
+.abr{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+/* Unknown words list */
+.uw-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--g100);gap:10px}
+.uw-item:last-child{border-bottom:none}
+.uw-item .uw-word{font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;color:var(--g800)}
+.uw-item .uw-mean{font-size:.82rem;color:var(--g500)}
+.uw-item .uw-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem;padding:4px 8px;border-radius:var(--rf);transition:var(--tr)}
+.uw-item .uw-del:hover{background:var(--reds)}
+.toggle-row{display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.toggle-btn{padding:6px 14px;border:2px solid var(--g200);border-radius:var(--rf);background:var(--w);font-size:.78rem;font-weight:700;cursor:pointer;transition:var(--tr);color:var(--g500)}
+.toggle-btn.act{border-color:var(--b6);background:var(--b1);color:var(--b7)}
+.cnf{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
+.cp{position:absolute;top:-20px;animation:cf 3s ease-in forwards}
+@keyframes cf{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.bn{position:fixed;bottom:0;left:0;right:0;background:var(--w);border-top:1px solid var(--g200);display:flex;justify-content:center;padding:5px 0 max(5px,env(safe-area-inset-bottom));z-index:50;box-shadow:0 -2px 8px rgba(0,0,0,.03)}
+.nn{display:flex;flex-direction:column;align-items:center;padding:4px 14px;border:none;background:none;cursor:pointer;color:var(--g400);font-size:.6rem;font-weight:700;transition:var(--tr);font-family:'Secular One',sans-serif}
+.nn span:first-child{font-size:1.15rem;margin-bottom:1px}.nn.ac{color:var(--b7)}.nn:hover{color:var(--b5)}
+@media(max-width:600px){.app{padding:8px 8px 84px}.motto{padding:20px 12px 18px}.motto .qt{font-size:1.1rem}.fg{gap:6px}.ft{padding:14px 8px}.ft .fi{font-size:1.3rem}.ft .fn{font-size:.75rem}.qc{padding:16px 13px}.op{padding:10px 11px;font-size:.85rem}}
+</style>
+</head>
+<body>
+<div class="bgd"><div class="o"></div><div class="o"></div><div class="o"></div></div>
+<div id="tst" class="tst"></div>
+<div id="cnf" class="cnf"></div>
+<div class="app">
+<header class="tb">
+  <div class="logo"><div class="ic">✨</div><span>Lika's Project</span></div>
+  <div class="sts"><div class="si">🔥<span id="sStr">0</span></div><div class="si">⭐<span id="sXP">0</span></div><div class="si">💎<span id="sLv">1</span></div></div>
+</header>
+
+<!-- HOME -->
+<section id="S_home" class="sc on">
+  <div class="motto"><div class="qt" id="mottoQ"></div><div class="sub">בואי נתרגל ביחד אנגלית 🌸</div><div class="icons">🤸‍♀️ 🎀 🛍️ ✈️ 💪</div></div>
+  <div class="pcard"><h3>התקדמות יומית</h3><div class="rw"><svg width="110" height="110" viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" id="pR" cx="55" cy="55" r="46" stroke-dasharray="289" stroke-dashoffset="289"/></svg><div class="rtxt" id="pP">0%</div></div><div class="enc" id="enc">בואי נתחיל! ✨</div></div>
+  <div class="fg">
+    <div class="ft" onclick="openLvl('comp')"><span class="fi">📝</span><div class="fn">השלמת משפטים</div><div class="fd">Sentence Completions</div></div>
+    <div class="ft" onclick="openLvl('rest')"><span class="fi">🔄</span><div class="fn">ניסוח מחדש</div><div class="fd">Restatements</div></div>
+    <div class="ft" onclick="openLvl('read')"><span class="fi">📖</span><div class="fn">הבנת הנקרא</div><div class="fd">Reading Comprehension</div></div>
+    <div class="ft" onclick="openLvl('exam')"><span class="fi">🎯</span><div class="fn">אמירנ"ט מעורב</div><div class="fd">סימולציה אדפטיבית</div></div>
+    <div class="ft" onclick="nav('S_voice')"><span class="fi">🎤</span><div class="fn">תרגול דיבור</div><div class="fd">תרחישים + שיחה</div></div>
+    <div class="ft" onclick="nav('S_vocab')"><span class="fi">💎</span><div class="fn">אוצר מילים</div><div class="fd">כרטיסיות חכמות</div></div>
+    <div class="ft" onclick="nav('S_uw')"><span class="fi">📓</span><div class="fn">מילים לחזרה</div><div class="fd">Unknown Words Bank</div></div>
+  </div>
+</section>
+
+<!-- LEVEL SELECT -->
+<section id="S_lvl" class="sc">
+  <div class="qh"><button class="bk" onclick="nav('S_home')">→</button><div class="inf"><span class="bdg" id="ltit">בחירת רמה</span></div><div style="width:36px"></div></div>
+  <div class="lvs"><h3>באיזו רמה לתרגל? 🎯</h3><div class="ld">בחרי רמה או קבלי המלצה</div><div style="text-align:center;margin-bottom:10px"><span class="rec" id="recB">⭐ מומלץ: בסיסי</span></div><div class="lbs" id="lbs"></div></div>
+</section>
+
+<!-- QUIZ -->
+<section id="S_quiz" class="sc">
+  <div class="qh"><button class="bk" onclick="exitQ()">→</button><div class="inf"><span class="bdg" id="qBdg">תרגול</span><div style="font-size:.72rem;color:var(--g400);margin-top:2px" id="qCnt">1/5</div></div><button class="sv" onclick="exitQ()">שמור וצא 💾</button></div>
+  <div class="tmb"><div class="tf" id="tF" style="width:100%"></div></div>
+  <div class="td" id="tD">2:00</div>
+  <div id="qA"></div>
+</section>
+
+<!-- VOICE / CHAT -->
+<section id="S_voice" class="sc">
+  <div class="qh"><button class="bk" onclick="nav('S_home')">→</button><div class="inf"><span class="bdg">תרגול דיבור 🎤</span></div><div style="width:36px"></div></div>
+  <div class="toggle-row" id="voiceMode">
+    <button class="toggle-btn act" onclick="setVMode('scenario')">תרחישים</button>
+    <button class="toggle-btn" onclick="setVMode('free')">שיחה חופשית</button>
+  </div>
+  <!-- Scenario Mode -->
+  <div id="scenarioPanel">
+    <div class="card">
+      <p class="heb" style="font-size:.85rem;color:var(--g500);margin-bottom:6px">📍 תרחיש:</p>
+      <p class="heb" style="font-size:.95rem;color:var(--b7);margin-bottom:12px;font-weight:700" id="scenDesc"></p>
+      <p class="heb" style="font-size:.82rem;color:var(--g500);margin-bottom:10px" id="scenHint"></p>
+      <div style="font-family:'Playfair Display',serif;font-size:1.15rem;line-height:1.6;color:var(--g800);direction:ltr;text-align:left;padding:14px;background:var(--b1);border-radius:var(--r);border:2px dashed var(--b3);margin-bottom:16px" id="vPr"></div>
+      <button class="mc" id="mBtn" onclick="tRec()">🎙️<span class="rp"></span></button>
+      <p class="heb" style="font-size:.78rem;color:var(--g400);margin-bottom:12px;text-align:center" id="mSt">לחצי על המיקרופון ודברי</p>
+      <div class="vr" id="vRs" style="display:none;font-family:'Playfair Display',serif;font-size:.95rem;direction:ltr;text-align:center;padding:10px;background:var(--g50);border-radius:var(--r);color:var(--g600);margin-bottom:10px"></div>
+      <div style="text-align:center;font-size:1.5rem;font-weight:900;margin:6px 0" id="vSc"></div>
+      <div style="text-align:center;margin-top:10px"><button class="cb2 pri" id="vNx" style="display:none" onclick="nVP()">תרחיש הבא ←</button></div>
+    </div>
+    <div class="card" style="font-size:.8rem;color:var(--g500);line-height:1.6">
+      💡 עובד הכי טוב ב-<strong>Chrome</strong>. הדפדפן יבקש הרשאת מיקרופון — אשרי.
+    </div>
+  </div>
+  <!-- Free Chat Mode -->
+  <div id="freePanel" style="display:none">
+    <div class="card">
+      <p class="heb" style="font-size:.88rem;color:var(--g600);margin-bottom:10px;font-weight:700">בחרי רמת שיחה:</p>
+      <div class="toggle-row" id="chatLvlRow">
+        <button class="toggle-btn" onclick="setChatLv(20)">20</button>
+        <button class="toggle-btn act" onclick="setChatLv(40)">40</button>
+        <button class="toggle-btn" onclick="setChatLv(60)">60</button>
+        <button class="toggle-btn" onclick="setChatLv(80)">80</button>
+        <button class="toggle-btn" onclick="setChatLv(100)">100</button>
+      </div>
+      <p class="heb" style="font-size:.75rem;color:var(--g400);margin-bottom:10px;text-align:center">20=קל מאוד, 100=מתקדם מאוד. הבוט מדבר ומדרג בהתאם.</p>
+      <div class="toggle-row">
+        <button class="toggle-btn act" id="fbEvery" onclick="setFbFreq('every')">דירוג כל משפט</button>
+        <button class="toggle-btn" id="fbFew" onclick="setFbFreq('few')">דירוג כל 2-3</button>
+      </div>
+      <div class="chat-log" id="chatLog">
+        <div class="chat-msg bot">Hi! I'm ready to chat. Pick a topic or just start talking! 😊</div>
+      </div>
+      <div class="chat-input">
+        <input id="chatIn" type="text" placeholder="Type or use mic..." dir="ltr" onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="tRecChat()" id="chatMic">🎤</button>
+        <button onclick="sendChat()">שלח</button>
+      </div>
+      <p class="heb" style="font-size:.72rem;color:var(--g400);margin-top:6px;text-align:center">
+        💬 הבוט משוחח באנגלית ומדרג אותך 1-10 על דיוק ותחביר
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- VOCAB -->
+<section id="S_vocab" class="sc">
+  <div class="qh"><button class="bk" onclick="nav('S_home')">→</button><div class="inf"><span class="bdg">אוצר מילים 💎</span><div style="font-size:.72rem;color:var(--g400);margin-top:2px" id="vC">1/10</div></div><div style="width:36px"></div></div>
+  <div class="toggle-row" id="vDirRow">
+    <button class="toggle-btn act" onclick="setVDir('en')">English → עברית</button>
+    <button class="toggle-btn" onclick="setVDir('he')">עברית → English</button>
+  </div>
+  <div class="fc" id="fcd"><div id="cF"></div></div>
+  <div class="vbtn-row" id="vBtns">
+    <button class="rv" id="revealBtn" onclick="revealV()">🔍 הצג תרגום</button>
+    <button class="nx" onclick="nextV()">⏩ הבאה</button>
+    <button class="dk" id="dkBtn" style="display:none" onclick="vAns(0)">לא ידעתי 🤔</button>
+    <button class="kn" id="knBtn" style="display:none" onclick="vAns(1)">ידעתי! ✅</button>
+  </div>
+</section>
+
+<!-- UNKNOWN WORDS BANK -->
+<section id="S_uw" class="sc">
+  <div class="qh"><button class="bk" onclick="nav('S_home')">→</button><div class="inf"><span class="bdg">📓 מילים לחזרה</span></div><div style="width:36px"></div></div>
+  <div class="card"><h3 class="heb" style="text-align:center;margin-bottom:12px;color:var(--g700)">מילים שסימנת "לא ידעתי"</h3><div id="uwList"></div><p id="uwEmpty" style="text-align:center;color:var(--g400);font-size:.85rem;padding:20px">אין מילים עדיין! 🎉</p></div>
+</section>
+
+<!-- RESULTS -->
+<section id="S_res" class="sc">
+  <div class="rc" id="rC"></div>
+  <div class="abr"><button class="cb2" onclick="nav('S_home')">🏠 חזרה</button><button class="cb2 pri" id="rRe">🔄 שוב!</button></div>
+</section>
+</div>
+
+<nav class="bn">
+  <button class="nn ac" onclick="nav('S_home')" data-n="home"><span>🏠</span><span>בית</span></button>
+  <button class="nn" onclick="openLvl('exam')" data-n="quiz"><span>🎯</span><span>תרגול</span></button>
+  <button class="nn" onclick="nav('S_voice')" data-n="voice"><span>🎤</span><span>דיבור</span></button>
+  <button class="nn" onclick="nav('S_vocab')" data-n="vocab"><span>💎</span><span>מילים</span></button>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════ */
+const G=k=>localStorage.getItem('lp_'+k);
+const W=(k,v)=>localStorage.setItem('lp_'+k,typeof v==='object'?JSON.stringify(v):v);
+const D={xp:+(G('xp')||0),str:+(G('str')||0),ld:G('ld')||'',dd:+(G('dd')||0),
+  lc:+(G('lc')||1),lr:+(G('lr')||1),lrd:+(G('lrd')||1),le:+(G('le')||1),lv:+(G('lv')||1),
+  /* Vocab: known words won't show for 30 cards, unknown show again after 8 */
+  vKnown:JSON.parse(G('vKn')||'{}'),  // {word: turnsLeft} countdown from 30
+  vUnknown:JSON.parse(G('vUn')||'{}'), // {word: turnsLeft} countdown from 8
+  uwBank:JSON.parse(G('uwB')||'[]'),   // permanent unknown words bank
+};
+function sv(){for(const k of Object.keys(D))W(k,D[k])}
+function gLv(){return Math.floor(D.xp/150)+1}
+function updUI(){
+  document.getElementById('sStr').textContent=D.str;
+  document.getElementById('sXP').textContent=D.xp;
+  document.getElementById('sLv').textContent=gLv();
+  const t=new Date().toDateString();
+  if(D.ld&&D.ld!==t&&Math.floor((new Date(t)-new Date(D.ld))/864e5)>1){D.str=0;sv()}
+  const p=Math.min(D.dd/3,1);
+  document.getElementById('pR').style.strokeDashoffset=289*(1-p);
+  document.getElementById('pP').textContent=Math.round(p*100)+'%';
+  const e=['בואי נתחיל! ✨','התחלה יפה! 💪','כמעט שם! 🌈','יעד הושלם! 🎉'];
+  document.getElementById('enc').textContent=e[Math.min(D.dd,3)];
+}
+function nav(id){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.querySelectorAll('.nn').forEach(n=>n.classList.remove('ac'));
+  const m={S_home:'home',S_quiz:'quiz',S_voice:'voice',S_vocab:'vocab',S_lvl:'quiz',S_res:'home',S_uw:'vocab'};
+  const b=document.querySelector(`.nn[data-n="${m[id]}"]`);if(b)b.classList.add('ac');
+  if(id==='S_vocab')initV();if(id==='S_voice')initVo();if(id==='S_uw')renderUW();
+  scrollTo({top:0,behavior:'smooth'});
+}
+
+/* MOTTOS */
+document.getElementById('mottoQ').textContent=["IF YOU CAN DREAM IT, YOU CAN DO IT ✨","GIRL POWER 💪🌟","BELIEVE IN YOURSELF 🦋"][Math.floor(Math.random()*3)];
+
+/* ═══════════════════════════════════════════
+   LEVELS
+   ═══════════════════════════════════════════ */
+const LVS=[{n:1,nm:'בסיסי',en:'Beginner',ds:'מילים פשוטים',ic:'🌱'},{n:2,nm:'בסיסי+',en:'Elementary',ds:'יומיום בסיסי',ic:'🌿'},{n:3,nm:'ביניים',en:'Intermediate',ds:'אקדמי בסיסי',ic:'🌳'},{n:4,nm:'ביניים+',en:'Upper-Int',ds:'מבנים מורכבים',ic:'🌲'},{n:5,nm:'מתקדם',en:'Advanced',ds:'רמת מאמרים',ic:'🏔️'}];
+let pendType='comp',lastType='comp',lastLv=1;
+function openLvl(type){
+  pendType=type;lastType=type;
+  const titles={comp:'השלמת משפטים',rest:'ניסוח מחדש',read:'הבנת הנקרא',exam:'אמירנ"ט מעורב'};
+  document.getElementById('ltit').textContent=titles[type];
+  const km={comp:'lc',rest:'lr',read:'lrd',exam:'le'};const rec=D[km[type]]||1;
+  document.getElementById('recB').textContent=`⭐ מומלץ: ${LVS[rec-1].nm}`;
+  const c=document.getElementById('lbs');c.innerHTML='';
+  LVS.forEach(l=>{c.innerHTML+=`<button class="lb ${l.n===rec?'rlv':''}" onclick="startP('${type}',${l.n})"><div class="li">${l.ic}</div><div><div class="ln">${l.nm} (${l.en}) ${l.n===rec?'⭐':''}</div><div class="ldd">${l.ds}</div></div></button>`;});
+  nav('S_lvl');
+}
+
+/* ═══════════════════════════════════════════
+   QUESTION BANK
+   ═══════════════════════════════════════════ */
+const QB={comp:[
+{d:1,t:"I want to _____ a new dress.",o:["buy","fly","read","cook"],c:0},
+{d:1,t:"She goes to the _____ to exercise.",o:["gym","library","bank","airport"],c:0},
+{d:1,t:"Can I try this in a different _____?",o:["size","food","sport","song"],c:0},
+{d:1,t:"The gymnast holds a _____ in her routine.",o:["ribbon","pillow","phone","book"],c:0},
+{d:1,t:"How much does this _____ cost?",o:["bag","tree","cloud","river"],c:0},
+{d:1,t:"She needs to _____ before practice.",o:["stretch","argue","forget","destroy"],c:0},
+{d:1,t:"Drink more _____ during exercise.",o:["water","coffee","soup","soda"],c:0},
+{d:1,t:"We buy vegetables at the _____.",o:["market","cinema","school","hospital"],c:0},
+{d:1,t:"Our _____ leaves at 10 AM.",o:["flight","lesson","movie","dinner"],c:0},
+{d:1,t:"The _____ in this store is very helpful.",o:["salesperson","teacher","doctor","pilot"],c:0},
+{d:2,t:"The store offers a 20% _____ this week.",o:["discount","distance","difficulty","direction"],c:0},
+{d:2,t:"A balanced _____ includes protein and vegetables.",o:["diet","game","trip","story"],c:0},
+{d:2,t:"She performed a beautiful _____ on the floor.",o:["routine","recipe","receipt","review"],c:0},
+{d:2,t:"I'd like to _____ this shirt, it doesn't fit.",o:["return","remember","repeat","repair"],c:0},
+{d:2,t:"Good _____ is essential for athletes.",o:["nutrition","furniture","fiction","fashion"],c:0},
+{d:2,t:"Could you _____ me to the fitting rooms?",o:["direct","deliver","design","defend"],c:0},
+{d:2,t:"The coach told her to _____ her flexibility.",o:["improve","ignore","import","impress"],c:0},
+{d:2,t:"She trains _____ hours every day.",o:["several","sudden","serious","similar"],c:0},
+{d:3,t:"The athlete's _____ after injury was remarkable.",o:["recovery","discovery","delivery","memory"],c:0},
+{d:3,t:"The new FIG _____ of points was updated for 2025.",o:["code","mode","node","load"],c:0},
+{d:3,t:"Online shopping has _____ changed retail.",o:["fundamentally","accidentally","temporarily","occasionally"],c:0},
+{d:3,t:"Gymnasts must demonstrate _____ and artistry.",o:["precision","permission","profession","possession"],c:0},
+{d:3,t:"The nutritionist recommended _____ her calorie intake.",o:["monitoring","abandoning","criticizing","eliminating"],c:0},
+{d:3,t:"The judge _____ the routine based on execution.",o:["evaluates","evacuates","evaporates","eliminates"],c:0},
+{d:4,t:"Apparatus handling requires _____ coordination.",o:["exceptional","expendable","experimental","explorative"],c:0},
+{d:4,t:"Consumer behavior is _____ influenced by social media.",o:["increasingly","insufficiently","indifferently","infrequently"],c:0},
+{d:4,t:"Overtraining can lead to _____ injuries.",o:["chronic","chaotic","chemical","charitable"],c:0},
+{d:4,t:"The economic _____ affected spending worldwide.",o:["downturn","outbreak","outlook","outcome"],c:0},
+{d:5,t:"Biomechanical analysis revealed _____ in her technique.",o:["deficiencies","dependencies","frequencies","constituencies"],c:0},
+{d:5,t:"The FIG's _____ revision has implications for training.",o:["comprehensive","comprehensible","compulsory","complementary"],c:0},
+{d:5,t:"Proprioceptive training is _____ for spatial awareness.",o:["indispensable","incomprehensible","inconsequential","indistinguishable"],c:0},
+],rest:[
+{d:1,t:'"She arrived before everyone else."',o:["She was the first one there.","She was late.","She didn't come.","She arrived last."],c:0},
+{d:1,t:'"The shoes are too expensive for me."',o:["I can't afford them.","They're cheap.","I love them.","They're free."],c:0},
+{d:1,t:'"She exercises every single day."',o:["She works out daily.","She never exercises.","She exercises weekly.","She hates it."],c:0},
+{d:1,t:'"The store closes at 9 PM."',o:["You can't shop there after 9.","It's open all night.","It opens at 9.","It never closes."],c:0},
+{d:2,t:'"The gymnast practiced until she perfected the move."',o:["She didn't stop until it was perfect.","She gave up quickly.","She practiced once.","She never perfected it."],c:0},
+{d:2,t:'"This dress costs twice as much as that one."',o:["That dress is half the price.","Both cost the same.","That dress costs more.","This one is cheaper."],c:0},
+{d:2,t:'"You should eat more protein after exercising."',o:["Post-workout protein is recommended.","Avoid protein after exercise.","Protein is unimportant.","Exercise needs no nutrition."],c:0},
+{d:3,t:'"The coach attributed success to rigorous training."',o:["Intensive training led to success.","Training was unnecessary.","They succeeded without training.","The coach was unhappy."],c:0},
+{d:3,t:'"Had she not stretched, the injury could have been worse."',o:["Stretching prevented worse injury.","Stretching caused her injury.","She didn't stretch.","Injury was unrelated."],c:0},
+{d:4,t:'"No sooner had the routine begun than the ribbon slipped."',o:["The ribbon fell right at the start.","She held it the whole time.","It ended before it fell.","She never used a ribbon."],c:0},
+{d:4,t:'"The correlation between diet and performance is well-documented."',o:["Research supports the diet-performance link.","No connection exists.","Diet is irrelevant.","Only genetics matter."],c:0},
+{d:5,t:'"The proliferation of e-commerce has rendered traditional retail obsolete."',o:["Online shopping made store-based selling outdated.","Stores are more popular than ever.","E-commerce failed.","Online shopping is declining."],c:0},
+],read:[
+{d:1,p:"Maria goes to the gym every morning at 7 AM. She starts with stretching for 10 minutes. Then she runs on the treadmill for 20 minutes. After running, she does weight exercises. She usually finishes at 8:30 AM.",
+q:"What does Maria do first at the gym?",o:["Stretching","Running","Weights","Drinking water"],c:0},
+{d:1,p:"The new shopping mall has over 100 stores, a food court, and a cinema. Parking is free on weekends. It's open from 10 AM to 10 PM every day.",
+q:"When is parking free?",o:["Weekends","Every day","Mondays","Never"],c:0},
+{d:2,p:"Rhythmic gymnastics combines dance, gymnastics, and apparatus. The five apparatus are rope, hoop, ball, clubs, and ribbon. Each routine lasts about 90 seconds and is performed to music. Gymnasts are judged on difficulty and artistry.",
+q:"How many apparatus are used?",o:["Five","Three","Six","Four"],c:0},
+{d:2,p:"Rhythmic gymnastics combines dance, gymnastics, and apparatus. The five apparatus are rope, hoop, ball, clubs, and ribbon. Each routine lasts about 90 seconds and is performed to music. Gymnasts are judged on difficulty and artistry.",
+q:"What are gymnasts judged on?",o:["Difficulty and artistry","Speed only","Height","Strength"],c:0},
+{d:3,p:"Athletes now understand that nutrition directly affects performance. Carbohydrates provide quick energy, proteins repair muscles, and healthy fats give long-term energy. Even mild dehydration can reduce performance by up to 25%. Nutritionists recommend eating 2-3 hours before training.",
+q:"By how much can mild dehydration reduce performance?",o:["Up to 25%","Up to 10%","Up to 50%","Up to 5%"],c:0},
+{d:4,p:"The 2025 FIG Code of Points introduced modifications: greater emphasis on body element variety, refined apparatus difficulty criteria with higher values for complex throws with rotations, and stricter execution penalties for apparatus loss and incomplete catches.",
+q:"What receives stricter penalties?",o:["Apparatus loss and incomplete catches","High jumps","Music choice","Costume design"],c:0},
+{d:5,p:"Research shows 87% of consumers begin buying online, even if purchasing in-store. 'Showrooming' — checking in-store then buying online — has forced retailers to adopt omnichannel strategies. 'Webrooming' — researching online, buying in-store — accounts for 70% of transactions.",
+q:"What is 'showrooming'?",o:["Checking in-store, buying online","Buying everything in-store","Avoiding online shopping","Returning items"],c:0},
+]};
+
+// HINTS for d>=3
+const HINTS={comp:{3:"Think about the context — which word fits the academic meaning?",4:"Look for Latin/Greek roots in the answer options.",5:"Consider the precise technical meaning in context."},
+rest:{3:"Look for the sentence that preserves the original meaning completely.",4:"Pay attention to conditional and inverted sentence structures.",5:"Focus on the nuance — which paraphrase captures every shade of meaning?"},
+read:{3:"Re-read the specific paragraph that relates to the question.",4:"Look for implicit information, not just stated facts.",5:"Consider what the author implies beyond the literal text."}};
+
+/* ═══════════════════════════════════════════
+   QUIZ ENGINE
+   ═══════════════════════════════════════════ */
+let QZ={type:'',level:0,qs:[],qi:0,correct:0,total:0,timer:null,tLeft:0};
+function startP(type,lv){
+  lastType=type;lastLv=lv;QZ.type=type;QZ.level=lv;QZ.qi=0;QZ.correct=0;QZ.total=0;
+  let pool=[];
+  if(type==='exam'){['comp','rest','read'].forEach(t=>{pool.push(...QB[t].filter(q=>q.d>=Math.max(1,lv-1)&&q.d<=Math.min(5,lv+1)).map(q=>({...q,qtype:t})));});}
+  else{pool=QB[type].filter(q=>q.d>=Math.max(1,lv-1)&&q.d<=Math.min(5,lv)).map(q=>({...q,qtype:type}));}
+  pool.sort(()=>Math.random()-.5);QZ.qs=pool.slice(0,Math.min(6,pool.length));
+  if(!QZ.qs.length){toast('אין שאלות ברמה הזו','no');return;}
+  const tm={comp:'השלמת משפטים',rest:'ניסוח מחדש',read:'הבנת הנקרא',exam:'אמירנ"ט'};
+  document.getElementById('qBdg').textContent=`${tm[type]} — ${LVS[lv-1].nm}`;
+  nav('S_quiz');showQ();
+}
+function showQ(){
+  if(QZ.qi>=QZ.qs.length){finishQ();return;}
+  const q=QZ.qs[QZ.qi];document.getElementById('qCnt').textContent=`${QZ.qi+1}/${QZ.qs.length}`;
+  const tl={comp:'השלמת משפטים',rest:'ניסוח מחדש',read:'הבנת הנקרא'};const L=['A','B','C','D'];
+  const qt=q.qtype||(q.p?'read':q.t.startsWith('"')?'rest':'comp');
+  let h='<div class="qc">';
+  h+=`<span class="tp">${tl[qt]||''} — רמה ${q.d}</span>`;
+  // Hint button for d>=3
+  if(q.d>=3){const ht=HINTS[qt]&&HINTS[qt][q.d]?HINTS[qt][q.d]:'Think carefully about the context.';
+    h+=`<button class="hint-btn" onclick="this.style.display='none';this.nextElementSibling.style.display='block'">💡 רמז</button><div class="hint-text">${ht}</div>`;}
+  if(q.p)h+=`<div class="psg">${q.p}</div>`;
+  const txt=q.q||q.t;
+  h+=`<div class="qt2">${qt==='comp'?txt.replace('_____','<span class="bl">&nbsp;</span>'):txt}</div>`;
+  h+='<div class="ops">';(q.o).forEach((op,i)=>{h+=`<button class="op" onclick="selO(this,${i})" data-i="${i}"><span class="ol">${L[i]}</span><span>${op}</span></button>`;});
+  h+='</div>';h+=`<button class="cb" id="cBtn" disabled onclick="confA()">אישור ✓</button></div>`;
+  document.getElementById('qA').innerHTML=h;window._sel=-1;
+  startTm(q.p?150:90);
+}
+function selO(b,i){document.querySelectorAll('.op').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');window._sel=i;document.getElementById('cBtn').disabled=false}
+function confA(){
+  if(window._sel===-1)return;clearInterval(QZ.timer);
+  const q=QZ.qs[QZ.qi],ok=window._sel===q.c;
+  document.querySelectorAll('.op').forEach((b,i)=>{if(i===q.c)b.classList.add('ok');else if(i===window._sel&&!ok)b.classList.add('wr');b.classList.add('dis');});
+  document.getElementById('cBtn').style.display='none';
+  ok?(QZ.correct++,toast('!נכון 🎉','ok')):toast('ממשיכים 💪','no');
+  QZ.total++;QZ.qi++;setTimeout(showQ,1500);
+}
+function exitQ(){clearInterval(QZ.timer);QZ.total>0?finishQ():nav('S_home')}
+function startTm(s){QZ.tLeft=s;const T=s;updTd();clearInterval(QZ.timer);
+  QZ.timer=setInterval(()=>{QZ.tLeft--;if(QZ.tLeft<=0){clearInterval(QZ.timer);toast('⏰ נגמר הזמן','no');QZ.total++;QZ.qi++;setTimeout(showQ,1200);return;}updTd();
+  const p=(QZ.tLeft/T)*100,f=document.getElementById('tF');f.style.width=p+'%';f.className='tf'+(p<20?' dng':p<35?' wrn':'');
+  document.getElementById('tD').className='td'+(p<20?' dng':p<35?' wrn':'');},1000);
+}
+function updTd(){document.getElementById('tD').textContent=Math.floor(QZ.tLeft/60)+':'+String(QZ.tLeft%60).padStart(2,'0')}
+function finishQ(){
+  clearInterval(QZ.timer);const pct=QZ.total?Math.round(QZ.correct/QZ.total*100):0;
+  const xp=QZ.correct*10+(QZ.level>=3?QZ.correct*5:0);D.xp+=xp;D.dd++;
+  const t=new Date().toDateString();if(D.ld!==t){D.str++;D.ld=t;}
+  const km={comp:'lc',rest:'lr',read:'lrd',exam:'le'},k=km[QZ.type]||km[lastType];
+  let nLv=D[k],msg='';
+  if(pct>=75&&nLv<5){nLv++;msg=`📈 רמה מומלצת עלתה ל${LVS[nLv-1].nm}!`;}
+  else if(pct<40&&nLv>1){nLv--;msg=`📉 נמליץ לחזור ל${LVS[nLv-1].nm}`;}
+  else msg=`✅ רמה מומלצת: ${LVS[nLv-1].nm}`;
+  D[k]=nLv;sv();updUI();
+  let tr,ti;if(pct>=90){tr='🏆';ti='!מדהימה';}else if(pct>=70){tr='🌟';ti='!מצוין';}else if(pct>=50){tr='💪';ti='לא רע!';}else{tr='📚';ti='ממשיכים!';}
+  document.getElementById('rC').innerHTML=`<div class="tr">${tr}</div><h2>${ti}</h2><div class="sb">${pct}%</div><div class="xp">+${xp} XP ⭐</div><div class="rb"><div class="ri"><span class="rl">נכונות</span><span class="rv">${QZ.correct}/${QZ.total}</span></div><div class="ri"><span class="rl">רמה</span><span class="rv">${LVS[QZ.level-1].nm}</span></div><div class="ri"><span class="rl">רצף</span><span class="rv">🔥 ${D.str}</span></div></div><div class="lrc">${msg}</div>`;
+  document.getElementById('rRe').onclick=()=>startP(lastType,D[k]);
+  nav('S_res');if(pct>=70)confetti();
+}
+function toast(m,t){const e=document.getElementById('tst');e.textContent=m;e.className=`tst ${t==='ok'?'tok':'tno'} sh`;setTimeout(()=>e.classList.remove('sh'),2000)}
+function confetti(){const c=document.getElementById('cnf'),cols=['#3B82F6','#60A5FA','#93C5FD','#F9A8D4','#A7F3D0','#FDE68A'];for(let i=0;i<35;i++){const p=document.createElement('div');p.className='cp';p.style.left=Math.random()*100+'%';p.style.background=cols[~~(Math.random()*6)];p.style.animationDelay=Math.random()*2+'s';p.style.animationDuration=(2+Math.random()*2)+'s';p.style.borderRadius=Math.random()>.5?'50%':'2px';p.style.width=(5+Math.random()*7)+'px';p.style.height=p.style.width;c.appendChild(p)}setTimeout(()=>c.innerHTML='',5e3)}
+
+/* ═══════════════════════════════════════════
+   VOICE — SCENARIOS
+   ═══════════════════════════════════════════ */
+const SCEN=[
+  {ctx:"את בחנות בגדים ורוצה למדוד שמלה",hint:"Try saying something a customer would say",txt:"Excuse me, can I try this dress on in a size medium?"},
+  {ctx:"את בשדה התעופה ומחפשת את השער",hint:"Ask for directions politely",txt:"Could you tell me where gate 12 is, please?"},
+  {ctx:"את במסעדה ורוצה להזמין",hint:"Order food politely",txt:"I'd like the grilled chicken salad, please."},
+  {ctx:"את בחדר כושר ומבקשת עזרה",hint:"Ask the trainer for help",txt:"Could you show me how to use this machine?"},
+  {ctx:"המאמנת שלך שואלת על התזונה שלך",hint:"Describe your diet",txt:"I usually eat a balanced diet with lots of protein and vegetables."},
+  {ctx:"את בתחרות התעמלות אומנותית ומדברת עם שופטת",hint:"Be formal and polite",txt:"Thank you for the feedback. I will work on improving my ribbon technique."},
+  {ctx:"את בקניון ומחפשת מתנה",hint:"Ask for a recommendation",txt:"I'm looking for a birthday gift for my friend. What would you recommend?"},
+  {ctx:"את מסבירה למישהו על ההתעמלות שלך",hint:"Describe your sport",txt:"Rhythmic gymnastics combines dance and gymnastics with apparatus like ribbon and ball."},
+  {ctx:"את במלון ויש בעיה בחדר",hint:"Report the problem politely",txt:"Excuse me, the air conditioning in my room doesn't seem to be working."},
+  {ctx:"את קונה נעלי ספורט חדשות",hint:"Ask about the product",txt:"Do you have these running shoes in size 38?"},
+  {ctx:"את אחרי אימון קשה ומדברת עם חברה",hint:"Share how you feel",txt:"That workout was really tough, but I feel great now!"},
+  {ctx:"את בסופר ומחפשת מוצר",hint:"Ask where something is",txt:"Excuse me, where can I find the organic yogurt?"},
+];
+let spi=0,recog=null,isRec=false;
+function initVo(){spi=Math.floor(Math.random()*SCEN.length);showScen();setVMode('scenario')}
+function showScen(){
+  const s=SCEN[spi];
+  document.getElementById('scenDesc').textContent=s.ctx;
+  document.getElementById('scenHint').textContent='💡 '+s.hint;
+  document.getElementById('vPr').textContent=s.txt;
+  ['vRs','vSc','vNx'].forEach(id=>{const e=document.getElementById(id);e.style.display='none';if(id==='vSc')e.textContent=''});
+  document.getElementById('mSt').textContent='לחצי על המיקרופון ודברי';
+}
+function setVMode(m){
+  document.querySelectorAll('#voiceMode .toggle-btn').forEach(b=>b.classList.remove('act'));
+  event.target.classList.add('act');
+  document.getElementById('scenarioPanel').style.display=m==='scenario'?'block':'none';
+  document.getElementById('freePanel').style.display=m==='free'?'block':'none';
+}
+function tRec(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){alert('נסי Chrome.');return;}
+  if(isRec){recog&&recog.stop();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR();recog.lang='en-US';recog.interimResults=false;
+  recog.onstart=()=>{isRec=true;document.getElementById('mBtn').classList.add('rec');document.getElementById('mSt').textContent='...מקשיבה 🎧'};
+  recog.onresult=e=>procVR(e.results[0][0].transcript);
+  recog.onerror=e=>{isRec=false;document.getElementById('mBtn').classList.remove('rec');document.getElementById('mSt').textContent=e.error==='no-speech'?'לא שמעתי, נסי שוב':'שגיאה'};
+  recog.onend=()=>{isRec=false;document.getElementById('mBtn').classList.remove('rec')};
+  recog.start();
+}
+function procVR(tr){
+  const target=SCEN[spi].txt.toLowerCase().replace(/[^a-z\s]/g,''),spoken=tr.toLowerCase().replace(/[^a-z\s]/g,'');
+  const tw=target.split(/\s+/),sw=spoken.split(/\s+/);
+  let m=0,j=0;for(let i=0;i<tw.length&&j<sw.length;i++){if(tw[i]===sw[j]){m++;j++}else{const n=sw.indexOf(tw[i],j);if(n!==-1&&n-j<3){m++;j=n+1}}}
+  const acc=Math.round(m/tw.length*100);
+  document.getElementById('vRs').style.display='block';document.getElementById('vRs').innerHTML=`<strong style="color:var(--g400)">You said:</strong> "${tr}"`;
+  const s=document.getElementById('vSc');s.style.display='block';s.textContent=acc+'%';s.style.color=acc>=80?'var(--grn)':acc>=50?'var(--goldd)':'var(--b7)';
+  document.getElementById('mSt').textContent=acc>=80?'!מצוין 🌟':acc>=50?'לא רע! 💪':'נסי שוב 📢';
+  document.getElementById('vNx').style.display='inline-block';
+  if(acc>=60){D.xp+=5;D.dd++;sv();updUI()}
+}
+function nVP(){spi=(spi+1)%SCEN.length;showScen()}
+
+/* ═══════════════════════════════════════════
+   FREE CHAT (AI-powered)
+   Uses Anthropic API — works in Claude.ai preview.
+   For GitHub Pages: add API key in the prompt below.
+   The bot converses and rates grammar 1-10.
+   ═══════════════════════════════════════════ */
+let chatLv=40,fbFreq='every',chatHist=[],chatMsgCount=0;
+function setChatLv(lv){chatLv=lv;document.querySelectorAll('#chatLvlRow .toggle-btn').forEach(b=>b.classList.remove('act'));event.target.classList.add('act')}
+function setFbFreq(f){fbFreq=f;document.getElementById('fbEvery').classList.toggle('act',f==='every');document.getElementById('fbFew').classList.toggle('act',f==='few')}
+
+function addChatMsg(text,cls){
+  const log=document.getElementById('chatLog'),d=document.createElement('div');
+  d.className='chat-msg '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;
+}
+
+async function sendChat(){
+  const inp=document.getElementById('chatIn'),txt=inp.value.trim();if(!txt)return;
+  inp.value='';addChatMsg(txt,'user');chatHist.push({role:'user',content:txt});chatMsgCount++;
+
+  const shouldEval=fbFreq==='every'||(chatMsgCount%2===0);
+  const lvDesc={20:'very simple vocabulary, short sentences, basic grammar',40:'simple everyday English, common expressions',60:'intermediate English with some complex grammar',80:'advanced English with idioms and complex structures',100:'sophisticated academic English, nuanced vocabulary'};
+  const sysPrompt=`You are a friendly English conversation partner for Lika who is learning English. 
+Conversation difficulty level: ${chatLv}/100 (${lvDesc[chatLv]||lvDesc[40]}).
+Adjust YOUR vocabulary and grammar complexity to match level ${chatLv}.
+Keep responses SHORT (1-3 sentences max).
+Topics: daily life, shopping, fitness, rhythmic gymnastics, travel, nutrition.
+${shouldEval?`IMPORTANT: After your conversational response, add on a NEW LINE:
+[SCORE: X/10] followed by brief feedback on her grammar/vocabulary/appropriateness. Be encouraging but honest. Rate the user's last message from 1 (poor) to 10 (excellent) for grammar correctness and contextual appropriateness. This is a FREE TEXT conversation — rate how well what she said fits grammatically and contextually.`:'Just respond conversationally, no scoring this turn.'}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:sysPrompt,messages:chatHist})});
+    const data=await res.json();
+    const full=data.content.map(c=>c.text||'').join('');
+    chatHist.push({role:'assistant',content:full});
+
+    // Split response and score
+    const scoreMatch=full.match(/\[SCORE:\s*(\d+)\/10\]\s*(.*)/s);
+    if(scoreMatch){
+      const convPart=full.substring(0,full.indexOf('[SCORE:')).trim();
+      addChatMsg(convPart,'bot');
+      addChatMsg(`📊 ${scoreMatch[1]}/10 — ${scoreMatch[2].trim()}`,'eval');
+    } else {
+      addChatMsg(full,'bot');
+    }
+  }catch(e){
+    addChatMsg("I'm having trouble connecting. Try typing your response and I'll do my best! 😊",'bot');
+    // Fallback: simple echo-back for offline/GitHub Pages
+    if(shouldEval){addChatMsg(`📊 Keep practicing! The AI scoring works best in Claude.ai preview.`,'eval')}
+  }
+}
+
+// Chat voice input
+let chatRecog=null,isChatRec=false;
+function tRecChat(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){alert('נסי Chrome');return}
+  if(isChatRec){chatRecog&&chatRecog.stop();return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  chatRecog=new SR();chatRecog.lang='en-US';chatRecog.interimResults=false;
+  const btn=document.getElementById('chatMic');
+  chatRecog.onstart=()=>{isChatRec=true;btn.textContent='🔴';btn.style.background='var(--red)'};
+  chatRecog.onresult=e=>{document.getElementById('chatIn').value=e.results[0][0].transcript;sendChat()};
+  chatRecog.onend=()=>{isChatRec=false;btn.textContent='🎤';btn.style.background='var(--b6)'};
+  chatRecog.onerror=()=>{isChatRec=false;btn.textContent='🎤';btn.style.background='var(--b6)'};
+  chatRecog.start();
+}
+
+/* ═══════════════════════════════════════════
+   VOCABULARY — Spaced repetition
+   ═══════════════════════════════════════════ */
+const VB=[
+{d:1,w:"stretch",ph:"/stretʃ/",m:"למתוח",ex:"Always stretch before exercise."},
+{d:1,w:"size",ph:"/saɪz/",m:"מידה",ex:"What size do you wear?"},
+{d:1,w:"healthy",ph:"/ˈhel.θi/",m:"בריא",ex:"Eating fruit is healthy."},
+{d:1,w:"receipt",ph:"/rɪˈsiːt/",m:"קבלה",ex:"Keep the receipt."},
+{d:1,w:"score",ph:"/skɔːr/",m:"ציון",ex:"She got a high score."},
+{d:1,w:"coach",ph:"/koʊtʃ/",m:"מאמן/ת",ex:"The coach was proud."},
+{d:1,w:"price",ph:"/praɪs/",m:"מחיר",ex:"What's the price?"},
+{d:1,w:"flight",ph:"/flaɪt/",m:"טיסה",ex:"Our flight is at 10."},
+{d:1,w:"practice",ph:"/ˈpræk.tɪs/",m:"להתאמן / תרגול",ex:"Practice makes perfect."},
+{d:1,w:"return",ph:"/rɪˈtɜːrn/",m:"להחזיר",ex:"I want to return this."},
+{d:2,w:"routine",ph:"/ruːˈtiːn/",m:"שגרה / מופע",ex:"Her routine was beautiful."},
+{d:2,w:"discount",ph:"/ˈdɪs.kaʊnt/",m:"הנחה",ex:"30% discount today."},
+{d:2,w:"balance",ph:"/ˈbæl.əns/",m:"איזון",ex:"Balance is key in gymnastics."},
+{d:2,w:"exchange",ph:"/ɪksˈtʃeɪndʒ/",m:"להחליף",ex:"Exchange this for a smaller size."},
+{d:2,w:"flexibility",ph:"/ˌflek.sɪˈbɪl.ɪ.ti/",m:"גמישות",ex:"She has amazing flexibility."},
+{d:2,w:"recommend",ph:"/ˌrek.əˈmend/",m:"להמליץ",ex:"I recommend this place."},
+{d:2,w:"competition",ph:"/ˌkɒm.pɪˈtɪʃ.ən/",m:"תחרות",ex:"The competition is next week."},
+{d:2,w:"luggage",ph:"/ˈlʌɡ.ɪdʒ/",m:"מזוודות",ex:"Don't forget your luggage."},
+{d:3,w:"apparatus",ph:"/ˌæp.əˈræt.əs/",m:"מכשיר (התעמלות)",ex:"The ribbon is an apparatus."},
+{d:3,w:"nutrition",ph:"/njuːˈtrɪʃ.ən/",m:"תזונה",ex:"Good nutrition helps."},
+{d:3,w:"significant",ph:"/sɪɡˈnɪf.ɪ.kənt/",m:"משמעותי",ex:"A significant improvement."},
+{d:3,w:"purchase",ph:"/ˈpɜːr.tʃəs/",m:"לרכוש",ex:"Thank you for your purchase."},
+{d:3,w:"demonstrate",ph:"/ˈdem.ən.streɪt/",m:"להדגים",ex:"Demonstrate the technique."},
+{d:4,w:"coordination",ph:"/koʊˌɔːr.dɪˈneɪ.ʃən/",m:"קואורדינציה",ex:"It demands coordination."},
+{d:4,w:"criteria",ph:"/kraɪˈtɪr.i.ə/",m:"קריטריונים",ex:"Scoring criteria changed."},
+{d:4,w:"execution",ph:"/ˌek.sɪˈkjuː.ʃən/",m:"ביצוע",ex:"Flawless execution."},
+{d:5,w:"comprehensive",ph:"/ˌkɒm.prɪˈhen.sɪv/",m:"מקיף",ex:"A comprehensive review."},
+{d:5,w:"unprecedented",ph:"/ʌnˈpres.ɪ.den.tɪd/",m:"חסר תקדים",ex:"Unprecedented success."},
+];
+
+let vDir='en',vPool=[],vi=0,revealed=false;
+function setVDir(d){vDir=d;document.querySelectorAll('#vDirRow .toggle-btn').forEach(b=>b.classList.remove('act'));event.target.classList.add('act');initV()}
+
+function initV(){
+  // Decrement counters for known/unknown
+  for(const w in D.vKnown){D.vKnown[w]--;if(D.vKnown[w]<=0)delete D.vKnown[w]}
+  for(const w in D.vUnknown){D.vUnknown[w]--;if(D.vUnknown[w]<=0)delete D.vUnknown[w]}
+  sv();
+
+  // Build pool: filter by level, exclude recently-known words
+  const maxD=Math.min((D.lv||1)+1,5);
+  let pool=VB.filter(v=>v.d<=maxD&&!D.vKnown[v.w]);
+
+  // Prioritize unknown words (they come back after 8)
+  const unknownDue=pool.filter(v=>D.vUnknown[v.w]!==undefined&&D.vUnknown[v.w]<=0);
+  const others=pool.filter(v=>!D.vUnknown[v.w]||D.vUnknown[v.w]>0);
+  // Interleave: unknown first, then others
+  vPool=[...unknownDue.sort(()=>Math.random()-.5),...others.sort(()=>Math.random()-.5)];
+  vi=0;revealed=false;showVC();
+}
+function showVC(){
+  if(!vPool.length||vi>=vPool.length){toast('סיימת! 🎉','ok');vi=0;return}
+  const v=vPool[vi];revealed=false;
+  document.getElementById('vC').textContent=`${vi+1}/${vPool.length}`;
+  // Show front side based on direction
+  if(vDir==='en'){
+    document.getElementById('cF').innerHTML=`<div class="wd">${v.w}</div><div class="ph">${v.ph}</div>`;
+  } else {
+    document.getElementById('cF').innerHTML=`<div class="mn" style="font-size:1.4rem">${v.m}</div>`;
+  }
+  document.getElementById('revealBtn').style.display='inline-block';
+  document.getElementById('dkBtn').style.display='none';
+  document.getElementById('knBtn').style.display='none';
+  const fc=document.getElementById('fcd');fc.style.animation='none';fc.offsetHeight;fc.style.animation='ci .4s ease-out';
+}
+function revealV(){
+  revealed=true;const v=vPool[vi];
+  if(vDir==='en'){
+    document.getElementById('cF').innerHTML=`<div class="wd">${v.w}</div><div class="ph">${v.ph}</div><div class="mn">${v.m}</div><div class="ex">"${v.ex}"</div>`;
+  } else {
+    document.getElementById('cF').innerHTML=`<div class="mn" style="font-size:1.4rem">${v.m}</div><div class="wd" style="margin-top:8px">${v.w}</div><div class="ph">${v.ph}</div><div class="ex">"${v.ex}"</div>`;
+  }
+  document.getElementById('revealBtn').style.display='none';
+  document.getElementById('dkBtn').style.display='inline-block';
+  document.getElementById('knBtn').style.display='inline-block';
+}
+function nextV(){vi++;if(vi>=vPool.length){toast('סיימת! 🎉','ok');D.dd++;sv();updUI();vi=0;}showVC()}
+function vAns(knew){
+  const w=vPool[vi].w;
+  if(knew){
+    D.vKnown[w]=30; // won't show for 30 cards
+    delete D.vUnknown[w];
+    D.xp+=3;toast('!מעולה 🌟','ok');
+  } else {
+    D.vUnknown[w]=8; // show again after 8 cards
+    // Add to permanent unknown bank if not already there
+    if(!D.uwBank.includes(w))D.uwBank.push(w);
+    toast('תחזור אליה 💪','no');
+  }
+  sv();updUI();vi++;
+  if(vi>=vPool.length){D.dd++;sv();updUI();toast('סיימת! 🎉','ok');vi=0;}
+  showVC();
+}
+function flipC(){if(!revealed)revealV()} // clicking card also reveals
+
+/* ═══════════════════════════════════════════
+   UNKNOWN WORDS BANK
+   ═══════════════════════════════════════════ */
+function renderUW(){
+  const list=document.getElementById('uwList'),empty=document.getElementById('uwEmpty');
+  list.innerHTML='';
+  if(!D.uwBank.length){empty.style.display='block';return}
+  empty.style.display='none';
+  D.uwBank.forEach((w,i)=>{
+    const v=VB.find(x=>x.w===w);
+    const m=v?v.m:'';
+    list.innerHTML+=`<div class="uw-item"><div><span class="uw-word">${w}</span><br><span class="uw-mean">${m}</span></div><button class="uw-del" onclick="delUW(${i})">🗑️</button></div>`;
+  });
+}
+function delUW(i){D.uwBank.splice(i,1);sv();renderUW();toast('נמחקה','ok')}
+
+/* INIT */
+updUI();
+</script>
+</body>
+</html>
