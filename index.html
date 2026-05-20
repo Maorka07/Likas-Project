@@ -90,6 +90,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .save-word-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border:2px solid var(--b3);border-radius:var(--rf);background:var(--b1);color:var(--b6);font-size:.75rem;font-weight:700;cursor:pointer;margin-top:10px;transition:var(--tr)}
 .save-word-btn:hover{background:var(--b2);border-color:var(--b5)}
 .save-word-btn.saved{background:var(--grns);border-color:var(--grn);color:#166534;pointer-events:none}
+.refresh-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:2px solid var(--pkd);border-radius:var(--rf);background:linear-gradient(135deg,#FEF3F8,#FDE6F0);color:var(--pkd);font-family:'Secular One',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;transition:var(--tr);box-shadow:0 2px 8px rgba(236,72,153,.15)}
+.refresh-btn:hover{background:linear-gradient(135deg,#FCE7F3,#FBCFE8);transform:translateY(-1px);box-shadow:0 4px 12px rgba(236,72,153,.25)}
+.refresh-btn .spin{display:inline-block;transition:transform .6s}
+.refresh-btn:active .spin{transform:rotate(360deg)}
 .tst{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(80px);padding:10px 22px;border-radius:var(--rf);font-weight:800;font-size:.85rem;z-index:100;opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
 .tst.sh{opacity:1;transform:translateX(-50%) translateY(0)}
 .tst.tok{background:var(--grn);color:#fff}.tst.tno{background:var(--b7);color:#fff}
@@ -112,7 +116,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .uw-item .uw-word{font-family:'Playfair Display',serif;font-weight:700;font-size:.95rem;color:var(--g800)}
 .uw-item .uw-mean{font-size:.82rem;color:var(--g500)}
 .uw-item .uw-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem;padding:4px 8px;border-radius:var(--rf);transition:var(--tr)}
-.uw-item .uw-del:hover{background:var(--reds)}
+.uw-item .uw-del:hover{background:rgba(239,68,68,.1)}
 .mc{width:70px;height:70px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--b5),var(--b8));color:#fff;font-size:1.6rem;cursor:pointer;box-shadow:var(--shg);transition:.5s cubic-bezier(.34,1.56,.64,1);position:relative;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
 .mc:hover{transform:scale(1.1)}.mc.rec{animation:mp 1.5s ease-in-out infinite;background:linear-gradient(135deg,var(--pkd),var(--red));box-shadow:0 4px 24px rgba(236,72,153,.35)}
 @keyframes mp{0%,100%{box-shadow:0 0 0 0 rgba(236,72,153,.35)}50%{box-shadow:0 0 0 16px rgba(236,72,153,0)}}
@@ -238,19 +242,23 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   </div>
 </section>
 
-<!-- VOCAB FLASHCARDS — with level tabs -->
+<!-- VOCAB FLASHCARDS — 6 level tabs + refresh button -->
 <section id="S_vocab" class="sc">
   <div class="qh"><button class="bk" onclick="nav('S_home')">→</button><div class="inf"><span class="bdg">אוצר מילים 💎</span><div style="font-size:.72rem;color:var(--g400);margin-top:2px" id="vC">1/10</div></div><div style="width:36px"></div></div>
   <div class="toggle-row" id="vLvlRow">
     <button class="toggle-btn act" onclick="setVLvl(1)">🌱 1</button>
-    <button class="toggle-btn" onclick="setVLvl(2)">🌿 2</button>
-    <button class="toggle-btn" onclick="setVLvl(3)">🌳 3</button>
-    <button class="toggle-btn" onclick="setVLvl(4)">🌲 4</button>
-    <button class="toggle-btn" onclick="setVLvl(5)">🏔️ 5</button>
+    <button class="toggle-btn" onclick="setVLvl(2)">🌷 2</button>
+    <button class="toggle-btn" onclick="setVLvl(3)">🌿 3</button>
+    <button class="toggle-btn" onclick="setVLvl(4)">🌳 4</button>
+    <button class="toggle-btn" onclick="setVLvl(5)">🌲 5</button>
+    <button class="toggle-btn" onclick="setVLvl(6)">🏔️ 6</button>
   </div>
   <div class="toggle-row" id="vDirRow">
     <button class="toggle-btn act" onclick="setVDir('en')">English → עברית</button>
     <button class="toggle-btn" onclick="setVDir('he')">עברית → English</button>
+  </div>
+  <div style="text-align:center;margin-bottom:14px">
+    <button class="refresh-btn" onclick="refreshVocab()"><span class="spin">🔄</span> רענני מילים</button>
   </div>
   <div class="fc" id="fcd"><div id="cF"></div></div>
   <div class="vbtn-row" id="vBtns">
@@ -292,16 +300,27 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 <script>
 /* ═══════════════════════════════════════════
-   STATE
+   STATE + MIGRATION
    ═══════════════════════════════════════════ */
 const G=k=>localStorage.getItem('lp_'+k);
 const W=(k,v)=>localStorage.setItem('lp_'+k,typeof v==='object'?JSON.stringify(v):v);
 const D={xp:+(G('xp')||0),str:+(G('str')||0),ld:G('ld')||'',dd:+(G('dd')||0),
   lc:+(G('lc')||1),lr:+(G('lr')||1),lrd:+(G('lrd')||1),le:+(G('le')||1),lv:+(G('lv')||1),
   vKnown:JSON.parse(G('vKn')||'{}'),vUnknown:JSON.parse(G('vUn')||'{}'),
-  uwBank:JSON.parse(G('uwB')||'[]'),  // saved words bank [{w,m}]
+  uwBank:JSON.parse(G('uwB')||'[]'),
 };
 function sv(){for(const k of Object.keys(D))W(k,D[k])}
+
+/* Migration: shift old levels 2-5 up to 3-6 to make room for new level 2
+   (Pre-Elementary). Preserves Lika's already-calibrated progress. */
+if(!G('migrated_v2_6lvl')){
+  ['lc','lr','lrd','le','lv'].forEach(k=>{
+    if(D[k]>=2)D[k]=Math.min(D[k]+1,6);
+  });
+  sv();
+  W('migrated_v2_6lvl','1');
+}
+
 function gLv(){return Math.floor(D.xp/150)+1}
 function updUI(){
   document.getElementById('sStr').textContent=D.str;
@@ -326,9 +345,18 @@ function nav(id){
 document.getElementById('mottoQ').textContent=["IF YOU CAN DREAM IT, YOU CAN DO IT ✨","GIRL POWER 💪🌟","BELIEVE IN YOURSELF 🦋"][Math.floor(Math.random()*3)];
 
 /* ═══════════════════════════════════════════
-   LEVELS & LEVEL SELECT
+   6-LEVEL SYSTEM
+   New level 2 (בסיסי+ / Pre-Elementary) added between
+   Beginner (1) and Elementary (now 3).
    ═══════════════════════════════════════════ */
-const LVS=[{n:1,nm:'בסיסי',en:'Beginner',ds:'מילים פשוטות',ic:'🌱'},{n:2,nm:'בסיסי+',en:'Elementary',ds:'יומיום בסיסי',ic:'🌿'},{n:3,nm:'ביניים',en:'Intermediate',ds:'אקדמי בסיסי',ic:'🌳'},{n:4,nm:'ביניים+',en:'Upper-Int',ds:'מבנים מורכבים',ic:'🌲'},{n:5,nm:'מתקדם',en:'Advanced',ds:'רמת מאמרים',ic:'🏔️'}];
+const LVS=[
+  {n:1,nm:'בסיסי',en:'Beginner',ds:'מילים בודדות, משפטים קצרים',ic:'🌱'},
+  {n:2,nm:'בסיסי+',en:'Pre-Elementary',ds:'משפטים פשוטים יומיומיים',ic:'🌷'},
+  {n:3,nm:'יסודי',en:'Elementary',ds:'יומיום בסיסי',ic:'🌿'},
+  {n:4,nm:'ביניים',en:'Intermediate',ds:'אקדמי בסיסי',ic:'🌳'},
+  {n:5,nm:'ביניים+',en:'Upper-Int',ds:'מבנים מורכבים',ic:'🌲'},
+  {n:6,nm:'מתקדם',en:'Advanced',ds:'רמת מאמרים',ic:'🏔️'}
+];
 let pendType='comp',lastType='comp',lastLv=1;
 function openLvl(type){
   pendType=type;lastType=type;
@@ -341,143 +369,270 @@ function openLvl(type){
 }
 
 /* ═══════════════════════════════════════════
-   QUESTION BANK — ANSWERS SHUFFLED AT RUNTIME
-   c = correct answer TEXT (not index!)
+   QUESTION BANK — 6 LEVELS
+   d:1 Beginner | d:2 Pre-Elementary (NEW) | d:3 Elementary
+   d:4 Intermediate | d:5 Upper-Int | d:6 Advanced
+   Focus on d:1-d:3 (more content). d:4-d:6 trimmed.
    ═══════════════════════════════════════════ */
 const QB={comp:[
+/* ── LEVEL 1 — BEGINNER (refreshed: ~85% new, ~15% kept) ── */
 {d:1,t:"I want to _____ a new dress.",o:["buy","fly","read","cook"],a:"buy"},
 {d:1,t:"She goes to the _____ to exercise.",o:["gym","library","bank","airport"],a:"gym"},
-{d:1,t:"Can I try this in a different _____?",o:["size","food","sport","song"],a:"size"},
-{d:1,t:"The gymnast holds a _____ in her routine.",o:["ribbon","pillow","phone","book"],a:"ribbon"},
-{d:1,t:"How much does this _____ cost?",o:["bag","tree","cloud","river"],a:"bag"},
-{d:1,t:"She needs to _____ before practice.",o:["stretch","argue","forget","destroy"],a:"stretch"},
 {d:1,t:"Drink more _____ during exercise.",o:["water","coffee","soup","soda"],a:"water"},
-{d:1,t:"We buy vegetables at the _____.",o:["market","cinema","school","hospital"],a:"market"},
-{d:1,t:"Our _____ leaves at 10 AM.",o:["flight","lesson","movie","dinner"],a:"flight"},
-{d:1,t:"The _____ in this store is very helpful.",o:["salesperson","teacher","doctor","pilot"],a:"salesperson"},
-{d:1,t:"I always _____ my teeth before bed.",o:["brush","wash","clean","sweep"],a:"brush"},
-{d:1,t:"She wears a _____ when it's cold outside.",o:["jacket","swimsuit","sandals","hat"],a:"jacket"},
-{d:2,t:"The store offers a 20% _____ this week.",o:["discount","distance","difficulty","direction"],a:"discount"},
-{d:2,t:"A balanced _____ includes protein and vegetables.",o:["diet","game","trip","story"],a:"diet"},
-{d:2,t:"She performed a beautiful _____ on the floor.",o:["routine","recipe","receipt","review"],a:"routine"},
-{d:2,t:"I'd like to _____ this shirt, it doesn't fit.",o:["return","remember","repeat","repair"],a:"return"},
-{d:2,t:"Good _____ is essential for athletes.",o:["nutrition","furniture","fiction","fashion"],a:"nutrition"},
-{d:2,t:"Could you _____ me to the fitting rooms?",o:["direct","deliver","design","defend"],a:"direct"},
-{d:2,t:"The coach told her to _____ her flexibility.",o:["improve","ignore","import","impress"],a:"improve"},
-{d:2,t:"She trains _____ hours every day.",o:["several","sudden","serious","similar"],a:"several"},
-{d:2,t:"Please _____ your seatbelt during the flight.",o:["fasten","remove","wash","paint"],a:"fasten"},
-{d:2,t:"The hotel has a beautiful _____ on the roof.",o:["pool","kitchen","garage","basement"],a:"pool"},
-{d:3,t:"The athlete's _____ after injury was remarkable.",o:["recovery","discovery","delivery","memory"],a:"recovery"},
-{d:3,t:"The new FIG _____ of points was updated for 2025.",o:["code","mode","node","load"],a:"code"},
-{d:3,t:"Online shopping has _____ changed retail.",o:["fundamentally","accidentally","temporarily","occasionally"],a:"fundamentally"},
-{d:3,t:"Gymnasts must demonstrate _____ and artistry.",o:["precision","permission","profession","possession"],a:"precision"},
-{d:3,t:"The nutritionist recommended _____ her calorie intake.",o:["monitoring","abandoning","criticizing","eliminating"],a:"monitoring"},
-{d:3,t:"The judge _____ the routine based on execution.",o:["evaluates","evacuates","evaporates","eliminates"],a:"evaluates"},
-{d:3,t:"The _____ of the project depends on team cooperation.",o:["success","access","excess","process"],a:"success"},
-{d:3,t:"Tourists should _____ local customs when traveling abroad.",o:["respect","reject","reflect","restrict"],a:"respect"},
-{d:4,t:"Apparatus handling requires _____ coordination.",o:["exceptional","expendable","experimental","explorative"],a:"exceptional"},
-{d:4,t:"Consumer behavior is _____ influenced by social media.",o:["increasingly","insufficiently","indifferently","infrequently"],a:"increasingly"},
-{d:4,t:"Overtraining can lead to _____ injuries.",o:["chronic","chaotic","chemical","charitable"],a:"chronic"},
-{d:4,t:"The economic _____ affected spending worldwide.",o:["downturn","outbreak","outlook","outcome"],a:"downturn"},
-{d:4,t:"The research _____ suggest a strong link between sleep and performance.",o:["findings","feelings","failings","fillings"],a:"findings"},
-{d:5,t:"Biomechanical analysis revealed _____ in her technique.",o:["deficiencies","dependencies","frequencies","constituencies"],a:"deficiencies"},
-{d:5,t:"The FIG's _____ revision has implications for training.",o:["comprehensive","comprehensible","compulsory","complementary"],a:"comprehensive"},
-{d:5,t:"Proprioceptive training is _____ for spatial awareness.",o:["indispensable","incomprehensible","inconsequential","indistinguishable"],a:"indispensable"},
-// ── NEW COMP QUESTIONS ──
-{d:1,t:"She put the groceries in a shopping _____.",o:["cart","car","card","carpet"],a:"cart"},
-{d:1,t:"The gym is _____ from 6 AM to 10 PM.",o:["open","closed","broken","empty"],a:"open"},
-{d:1,t:"I need to _____ my hotel room online.",o:["book","cook","look","hook"],a:"book"},
-{d:1,t:"The _____ told us to fasten our seatbelts.",o:["pilot","teacher","doctor","waiter"],a:"pilot"},
-{d:1,t:"She drinks a _____ of orange juice every morning.",o:["glass","plate","bowl","fork"],a:"glass"},
-{d:2,t:"Regular stretching can help _____ injuries.",o:["prevent","promote","produce","pretend"],a:"prevent"},
-{d:2,t:"The _____ rate from dollars to euros changed today.",o:["exchange","exercise","example","examine"],a:"exchange"},
-{d:2,t:"She keeps a strict training _____ during competition season.",o:["schedule","scandal","sculpture","scripture"],a:"schedule"},
-{d:2,t:"Athletes must stay well _____ by drinking enough water.",o:["hydrated","decorated","educated","motivated"],a:"hydrated"},
-{d:2,t:"The online store offers free _____ on orders over $50.",o:["shipping","shopping","shaping","sharing"],a:"shipping"},
-{d:3,t:"The gymnast's artistry score _____ her technical difficulty.",o:["complemented","complicated","compromised","competed"],a:"complemented"},
-{d:3,t:"Insufficient warm-up may _____ the risk of muscle tears.",o:["increase","decrease","maintain","remove"],a:"increase"},
-{d:3,t:"The retailer launched a _____ campaign to attract new customers.",o:["marketing","marching","matching","mapping"],a:"marketing"},
-{d:3,t:"Her dedication to training is truly _____.",o:["remarkable","removable","renewable","repeatable"],a:"remarkable"},
-{d:3,t:"The study _____ a clear link between sleep quality and reaction time.",o:["established","abolished","demolished","diminished"],a:"established"},
-{d:4,t:"The gymnast's _____ to the new apparatus rules was impressively swift.",o:["adaptation","administration","admiration","admonition"],a:"adaptation"},
-{d:4,t:"Sustainable retail practices are gaining _____ among conscious consumers.",o:["traction","fraction","attraction","distraction"],a:"traction"},
-{d:4,t:"The nutritionist advised against _____ caloric restriction for athletes.",o:["excessive","exclusive","expensive","extensive"],a:"excessive"},
-{d:4,t:"Her performance was _____ by a last-minute change in music selection.",o:["hampered","honored","harbored","hastened"],a:"hampered"},
-{d:5,t:"The _____ of training modalities yielded superior competitive outcomes.",o:["amalgamation","abbreviation","acceleration","accumulation"],a:"amalgamation"},
-{d:5,t:"Judges exhibited a _____ toward rewarding risk over artistry in the finals.",o:["predilection","predetermination","precondition","predomination"],a:"predilection"},
-{d:5,t:"The athlete's _____ recovery defied medical expectations.",o:["expeditious","extraneous","exhaustive","exploitative"],a:"expeditious"},
+/* new L1 */
+{d:1,t:"My name _____ Lika.",o:["is","are","am","be"],a:"is"},
+{d:1,t:"She _____ very tall.",o:["is","are","am","do"],a:"is"},
+{d:1,t:"I _____ coffee every morning.",o:["drink","drinks","drinking","drank"],a:"drink"},
+{d:1,t:"There _____ five girls in the class.",o:["are","is","am","be"],a:"are"},
+{d:1,t:"Where _____ you from?",o:["are","is","do","am"],a:"are"},
+{d:1,t:"He _____ a doctor.",o:["is","are","am","be"],a:"is"},
+{d:1,t:"We _____ at the park now.",o:["are","is","am","be"],a:"are"},
+{d:1,t:"This _____ my friend.",o:["is","are","am","be"],a:"is"},
+{d:1,t:"I have _____ apple.",o:["an","a","the","some"],a:"an"},
+{d:1,t:"She has _____ cat.",o:["a","an","the","one"],a:"a"},
+{d:1,t:"The cat is _____ the table.",o:["under","of","at","by"],a:"under"},
+{d:1,t:"I go to school _____ Monday.",o:["on","in","at","by"],a:"on"},
+{d:1,t:"We eat dinner _____ 7 PM.",o:["at","in","on","by"],a:"at"},
+{d:1,t:"My birthday is _____ June.",o:["in","on","at","by"],a:"in"},
+{d:1,t:"She _____ a red dress.",o:["wears","wear","wearing","wore"],a:"wears"},
+{d:1,t:"I _____ to music every day.",o:["listen","listens","listening","listened"],a:"listen"},
+{d:1,t:"Can you _____ me, please?",o:["help","helps","helping","helped"],a:"help"},
+{d:1,t:"The dog _____ very fast.",o:["runs","run","running","ran"],a:"runs"},
+{d:1,t:"I'm _____ hungry.",o:["very","much","many","lot"],a:"very"},
+{d:1,t:"How _____ are you?",o:["old","year","much","many"],a:"old"},
+{d:1,t:"What _____ do you like?",o:["color","colour","colored","coloring"],a:"color"},
+{d:1,t:"She is _____ pretty girl.",o:["a","an","the","one"],a:"a"},
+{d:1,t:"I want _____ go home.",o:["to","for","at","of"],a:"to"},
+{d:1,t:"He plays _____ the gym.",o:["at","on","of","by"],a:"at"},
+{d:1,t:"My sister _____ in Tel Aviv.",o:["lives","live","living","lived"],a:"lives"},
+{d:1,t:"I _____ a sandwich for lunch.",o:["ate","eats","eating","eat"],a:"ate"},
+{d:1,t:"Yesterday I _____ to the mall.",o:["went","go","going","goes"],a:"went"},
+{d:1,t:"She _____ a book last night.",o:["read","reads","reading","read"],a:"read"},
+{d:1,t:"How _____ does it cost?",o:["much","many","old","long"],a:"much"},
+{d:1,t:"I'm _____ tired today.",o:["so","very much","too many","lot"],a:"so"},
+{d:1,t:"The store is _____ now.",o:["open","opens","opening","opened"],a:"open"},
+{d:1,t:"Please _____ the door.",o:["close","closing","closed","closes"],a:"close"},
+{d:1,t:"I don't _____ what to say.",o:["know","knows","knowing","known"],a:"know"},
+{d:1,t:"She has two _____.",o:["children","childs","childrens","child"],a:"children"},
+{d:1,t:"Look! It _____ raining.",o:["is","are","am","be"],a:"is"},
+{d:1,t:"There are many _____ in the park.",o:["people","peoples","person","persons"],a:"people"},
+{d:1,t:"This is my _____ shirt.",o:["favorite","favoriting","favorited","favors"],a:"favorite"},
+/* ── LEVEL 2 — PRE-ELEMENTARY (all new) ── */
+{d:2,t:"Yesterday she _____ to the mall with her friend.",o:["went","goes","going","go"],a:"went"},
+{d:2,t:"I _____ TV when you called me.",o:["was watching","watch","watched","am watching"],a:"was watching"},
+{d:2,t:"This dress is _____ than that one.",o:["nicer","nice","nicest","more nicer"],a:"nicer"},
+{d:2,t:"She is the _____ girl in the class.",o:["tallest","taller","tall","more tall"],a:"tallest"},
+{d:2,t:"How _____ shoes do you have?",o:["many","much","more","most"],a:"many"},
+{d:2,t:"How _____ time do you need?",o:["much","many","more","most"],a:"much"},
+{d:2,t:"I _____ ever been to London.",o:["have never","never have","never","have not never"],a:"have never"},
+{d:2,t:"They _____ play tennis on Sundays.",o:["usually","usual","using","used"],a:"usually"},
+{d:2,t:"She speaks English _____.",o:["fluently","fluent","fluency","fluentness"],a:"fluently"},
+{d:2,t:"I'm going to _____ a cake tomorrow.",o:["bake","baked","baking","bakes"],a:"bake"},
+{d:2,t:"He hasn't finished his homework _____.",o:["yet","still","already","ever"],a:"yet"},
+{d:2,t:"We've _____ eaten breakfast.",o:["already","yet","still","ever"],a:"already"},
+{d:2,t:"If it rains, we _____ stay home.",o:["will","would","are","were"],a:"will"},
+{d:2,t:"She would call you if she _____ your number.",o:["had","has","have","having"],a:"had"},
+{d:2,t:"I'm looking _____ my keys.",o:["for","at","up","into"],a:"for"},
+{d:2,t:"Please look _____ the children while I'm out.",o:["after","for","up","into"],a:"after"},
+{d:2,t:"The book _____ I read was excellent.",o:["that","who","whose","whom"],a:"that"},
+{d:2,t:"She's the woman _____ teaches us yoga.",o:["who","which","whose","whom"],a:"who"},
+{d:2,t:"I don't have _____ money with me.",o:["any","some","no","none"],a:"any"},
+{d:2,t:"Would you like _____ tea?",o:["some","any","no","none"],a:"some"},
+{d:2,t:"This bag is _____ expensive!",o:["too","very much","so much","more"],a:"too"},
+{d:2,t:"She's not _____ tall to reach the shelf.",o:["tall enough","enough tall","too tall","tall too"],a:"tall enough"},
+{d:2,t:"I _____ swim when I was five.",o:["could","can","may","might"],a:"could"},
+{d:2,t:"You _____ wear a helmet when cycling.",o:["should","could","might","may"],a:"should"},
+{d:2,t:"The window _____ broken by the wind.",o:["was","is","were","be"],a:"was"},
+{d:2,t:"Coffee _____ in Brazil.",o:["is grown","grows","growing","grew"],a:"is grown"},
+{d:2,t:"She told me _____ wait for her.",o:["to","for","of","at"],a:"to"},
+{d:2,t:"I enjoy _____ in the morning.",o:["running","to run","run","ran"],a:"running"},
+{d:2,t:"My phone _____ is 050-1234567.",o:["number","numbers","numbering","numbered"],a:"number"},
+{d:2,t:"Can you _____ me a favor?",o:["do","make","take","get"],a:"do"},
+{d:2,t:"I need to _____ a decision.",o:["make","do","take","get"],a:"make"},
+{d:2,t:"She _____ a shower every morning.",o:["takes","makes","does","gives"],a:"takes"},
+{d:2,t:"He _____ his best in the competition.",o:["did","made","took","gave"],a:"did"},
+{d:2,t:"How long have you _____ here?",o:["been","be","was","being"],a:"been"},
+{d:2,t:"They've lived in Haifa _____ 2010.",o:["since","for","from","during"],a:"since"},
+{d:2,t:"I've worked here _____ five years.",o:["for","since","during","from"],a:"for"},
+{d:2,t:"_____ you mind opening the window?",o:["Would","Do","Are","Will"],a:"Would"},
+{d:2,t:"It's important _____ stretch before exercise.",o:["to","for","of","at"],a:"to"},
+{d:2,t:"She's interested _____ gymnastics.",o:["in","at","on","of"],a:"in"},
+{d:2,t:"I'm good _____ math.",o:["at","in","on","of"],a:"at"},
+{d:2,t:"My sister is married _____ a teacher.",o:["to","with","of","by"],a:"to"},
+{d:2,t:"She's afraid _____ spiders.",o:["of","from","at","by"],a:"of"},
+/* ── LEVEL 3 — ELEMENTARY (refreshed: ~85% new, ~15% kept) ── */
+{d:3,t:"The store offers a 20% _____ this week.",o:["discount","distance","difficulty","direction"],a:"discount"},
+{d:3,t:"A balanced _____ includes protein and vegetables.",o:["diet","game","trip","story"],a:"diet"},
+/* new L3 */
+{d:3,t:"She _____ from the team after the injury.",o:["withdrew","weakened","wandered","wondered"],a:"withdrew"},
+{d:3,t:"I'd like to _____ a table for two, please.",o:["reserve","resemble","remove","reveal"],a:"reserve"},
+{d:3,t:"The training session was _____ due to the heat.",o:["cancelled","calculated","carried","captured"],a:"cancelled"},
+{d:3,t:"She _____ her routine three times before the competition.",o:["rehearsed","remembered","reminded","reduced"],a:"rehearsed"},
+{d:3,t:"The judge gave a _____ explanation of the deductions.",o:["detailed","delayed","delicate","delivered"],a:"detailed"},
+{d:3,t:"Athletes need to _____ their hydration during training.",o:["maintain","manufacture","manipulate","manage"],a:"maintain"},
+{d:3,t:"The coach is _____ for her strict but fair approach.",o:["known","knowing","knew","know"],a:"known"},
+{d:3,t:"I always _____ the label before buying food products.",o:["check","cheek","cheer","chew"],a:"check"},
+{d:3,t:"The new mall has a wide _____ of international brands.",o:["range","rage","raise","ridge"],a:"range"},
+{d:3,t:"Her flexibility has _____ remarkably this year.",o:["improved","approved","arrived","applied"],a:"improved"},
+{d:3,t:"The flight was _____ by two hours.",o:["delayed","designed","decided","denied"],a:"delayed"},
+{d:3,t:"Customers can _____ items within 14 days.",o:["return","retain","reveal","retire"],a:"return"},
+{d:3,t:"She _____ a difficult skill during her routine.",o:["performed","perfumed","preferred","prepared"],a:"performed"},
+{d:3,t:"The gymnast received _____ from the judges.",o:["feedback","background","baggage","footage"],a:"feedback"},
+{d:3,t:"Eating too much sugar can _____ your health.",o:["damage","manage","arrange","engage"],a:"damage"},
+{d:3,t:"The hotel staff was extremely _____.",o:["helpful","handful","hopeful","harmful"],a:"helpful"},
+{d:3,t:"This restaurant is _____ for its seafood.",o:["famous","furious","fabulous","frequent"],a:"famous"},
+{d:3,t:"She _____ to lose 5 kilos before the competition.",o:["intends","invents","intends","invents"],a:"intends"},
+{d:3,t:"The shopping mall is _____ in the city center.",o:["located","laughed","learned","lasted"],a:"located"},
+{d:3,t:"The athletes _____ in this gym for the Olympics.",o:["prepare","prepared","preparing","prepares"],a:"prepare"},
+{d:3,t:"Her _____ for gymnastics started at age four.",o:["passion","fashion","section","portion"],a:"passion"},
+{d:3,t:"Online reviews can _____ a customer's decision.",o:["influence","invent","include","invite"],a:"influence"},
+{d:3,t:"The coach _____ everyone on the team after the loss.",o:["encouraged","enclosed","enlisted","enlarged"],a:"encouraged"},
+{d:3,t:"This shirt is _____ from organic cotton.",o:["made","make","makes","making"],a:"made"},
+{d:3,t:"The trip to Italy was _____ amazing.",o:["absolutely","absolute","absoluteness","absolutes"],a:"absolutely"},
+{d:3,t:"She _____ a special diet to improve performance.",o:["follows","follow","followed","following"],a:"follows"},
+{d:3,t:"My credit card was _____ at the store.",o:["accepted","accessed","accomplished","accumulated"],a:"accepted"},
+{d:3,t:"The new collection will be _____ next month.",o:["released","reduced","relaxed","required"],a:"released"},
+{d:3,t:"She wants to _____ as a personal trainer.",o:["qualify","quality","quantity","quarrel"],a:"qualify"},
+{d:3,t:"The boutique only sells _____ products.",o:["luxury","lottery","laundry","library"],a:"luxury"},
+{d:3,t:"It's _____ to drink enough water during training.",o:["essential","essence","essay","easier"],a:"essential"},
+{d:3,t:"The ribbon needs _____ handling.",o:["careful","careless","carrier","carrying"],a:"careful"},
+{d:3,t:"She's a _____ member of the national team.",o:["proud","prove","proof","provide"],a:"proud"},
+/* ── LEVEL 4 — INTERMEDIATE (trimmed) ── */
+{d:4,t:"The athlete's _____ after injury was remarkable.",o:["recovery","discovery","delivery","memory"],a:"recovery"},
+{d:4,t:"Online shopping has _____ changed retail.",o:["fundamentally","accidentally","temporarily","occasionally"],a:"fundamentally"},
+{d:4,t:"Gymnasts must demonstrate _____ and artistry.",o:["precision","permission","profession","possession"],a:"precision"},
+{d:4,t:"The judge _____ the routine based on execution.",o:["evaluates","evacuates","evaporates","eliminates"],a:"evaluates"},
+{d:4,t:"Tourists should _____ local customs when traveling.",o:["respect","reject","reflect","restrict"],a:"respect"},
+{d:4,t:"Insufficient warm-up may _____ the risk of muscle tears.",o:["increase","decrease","maintain","remove"],a:"increase"},
+{d:4,t:"The retailer launched a _____ campaign to attract customers.",o:["marketing","marching","matching","mapping"],a:"marketing"},
+/* ── LEVEL 5 — UPPER-INT (trimmed) ── */
+{d:5,t:"Apparatus handling requires _____ coordination.",o:["exceptional","expendable","experimental","explorative"],a:"exceptional"},
+{d:5,t:"Consumer behavior is _____ influenced by social media.",o:["increasingly","insufficiently","indifferently","infrequently"],a:"increasingly"},
+{d:5,t:"The gymnast's _____ to new rules was impressively swift.",o:["adaptation","administration","admiration","admonition"],a:"adaptation"},
+{d:5,t:"Her performance was _____ by a last-minute change in music.",o:["hampered","honored","harbored","hastened"],a:"hampered"},
+/* ── LEVEL 6 — ADVANCED (trimmed) ── */
+{d:6,t:"Biomechanical analysis revealed _____ in her technique.",o:["deficiencies","dependencies","frequencies","constituencies"],a:"deficiencies"},
+{d:6,t:"Proprioceptive training is _____ for spatial awareness.",o:["indispensable","incomprehensible","inconsequential","indistinguishable"],a:"indispensable"},
+{d:6,t:"The _____ of training modalities yielded superior outcomes.",o:["amalgamation","abbreviation","acceleration","accumulation"],a:"amalgamation"},
 ],rest:[
-{d:1,t:'"She arrived before everyone else."',o:["She was the first one there.","She was late.","She didn't come.","She arrived last."],a:"She was the first one there."},
-{d:1,t:'"The shoes are too expensive for me."',o:["I can't afford them.","They're cheap.","I love them.","They're free."],a:"I can't afford them."},
-{d:1,t:'"She exercises every single day."',o:["She works out daily.","She never exercises.","She exercises weekly.","She hates it."],a:"She works out daily."},
-{d:1,t:'"The store closes at 9 PM."',o:["You can't shop there after 9.","It's open all night.","It opens at 9.","It never closes."],a:"You can't shop there after 9."},
-{d:1,t:'"He is the tallest boy in class."',o:["No one in class is taller than him.","He is very short.","Everyone is taller.","He is average."],a:"No one in class is taller than him."},
-{d:2,t:'"The gymnast practiced until she perfected the move."',o:["She didn't stop until it was perfect.","She gave up quickly.","She practiced once.","She never perfected it."],a:"She didn't stop until it was perfect."},
-{d:2,t:'"This dress costs twice as much as that one."',o:["That dress is half the price.","Both cost the same.","That dress costs more.","This one is cheaper."],a:"That dress is half the price."},
-{d:2,t:'"You should eat more protein after exercising."',o:["Post-workout protein is recommended.","Avoid protein after exercise.","Protein is unimportant.","Exercise needs no nutrition."],a:"Post-workout protein is recommended."},
-{d:2,t:'"The flight was delayed because of the storm."',o:["The storm caused a delay in the flight.","The flight left on time.","The weather was perfect.","The storm had no effect."],a:"The storm caused a delay in the flight."},
-{d:3,t:'"The coach attributed success to rigorous training."',o:["Intensive training led to success.","Training was unnecessary.","They succeeded without training.","The coach was unhappy."],a:"Intensive training led to success."},
-{d:3,t:'"Had she not stretched, the injury could have been worse."',o:["Stretching prevented worse injury.","Stretching caused her injury.","She didn't stretch.","Injury was unrelated."],a:"Stretching prevented worse injury."},
-{d:4,t:'"No sooner had the routine begun than the ribbon slipped."',o:["The ribbon fell right at the start.","She held it the whole time.","It ended before it fell.","She never used a ribbon."],a:"The ribbon fell right at the start."},
-{d:4,t:'"The correlation between diet and performance is well-documented."',o:["Research supports the diet-performance link.","No connection exists.","Diet is irrelevant.","Only genetics matter."],a:"Research supports the diet-performance link."},
-{d:5,t:'"The proliferation of e-commerce has rendered traditional retail obsolete."',o:["Online shopping made store-based selling outdated.","Stores are more popular than ever.","E-commerce failed.","Online shopping is declining."],a:"Online shopping made store-based selling outdated."},
-// ── NEW REST QUESTIONS ──
-{d:1,t:'"I can\'t find my keys anywhere."',o:["My keys are lost.","I found my keys.","I don't have keys.","I don't need keys."],a:"My keys are lost."},
-{d:1,t:'"The train leaves in five minutes."',o:["We need to hurry to catch the train.","The train already left.","The train is cancelled.","We have plenty of time."],a:"We need to hurry to catch the train."},
-{d:1,t:'"She speaks three languages fluently."',o:["She is fluent in three languages.","She can't speak any language.","She only speaks one language.","She is learning her first language."],a:"She is fluent in three languages."},
-{d:2,t:'"The competition was cancelled because of the weather."',o:["Weather conditions led to the cancellation of the competition.","The competition took place despite the weather.","The weather was perfect for competing.","They moved the competition indoors."],a:"Weather conditions led to the cancellation of the competition."},
-{d:2,t:'"She would rather train alone than in a group."',o:["She prefers solo training over group sessions.","She always trains in groups.","She hates training.","She never trains alone."],a:"She prefers solo training over group sessions."},
-{d:2,t:'"The cheaper the product, the lower the quality."',o:["Low-priced items tend to have inferior quality.","Cheap products are always excellent.","Price has no effect on quality.","Expensive items are always bad."],a:"Low-priced items tend to have inferior quality."},
-{d:3,t:'"Only after she reviewed the footage did she notice the error."',o:["She discovered the mistake when she watched the recording.","She noticed the error immediately during the routine.","She never found any errors.","The footage was unavailable."],a:"She discovered the mistake when she watched the recording."},
-{d:3,t:'"The benefits of regular exercise outweigh the time investment."',o:["Exercising regularly is worth the time it takes.","Exercise is a waste of time.","The time investment is too great.","There are no benefits to exercise."],a:"Exercising regularly is worth the time it takes."},
-{d:3,t:'"The store revised its return policy to accommodate online purchases."',o:["The return rules were updated to include items bought online.","Online purchases cannot be returned.","The store eliminated its return policy.","Nothing changed about returns."],a:"The return rules were updated to include items bought online."},
-{d:4,t:'"Scarcely had the season concluded when preparations for the next began."',o:["Preparations for the new season started almost immediately after the previous one ended.","There was a long break between seasons.","No preparations were made.","The season never ended."],a:"Preparations for the new season started almost immediately after the previous one ended."},
-{d:4,t:'"The athlete conceded that her rival\'s performance had been superior."',o:["She admitted her competitor performed better than she did.","She claimed she was the best.","She refused to acknowledge her rival.","Her rival performed poorly."],a:"She admitted her competitor performed better than she did."},
-{d:5,t:'"The ostensible purpose of the regulation belied its actual intent."',o:["The regulation's stated aim concealed its true objective.","The regulation was completely transparent.","Everyone understood the real purpose.","The regulation had no purpose."],a:"The regulation's stated aim concealed its true objective."},
-{d:5,t:'"Notwithstanding the adverse conditions, the athlete persevered."',o:["The athlete continued despite unfavorable circumstances.","The athlete gave up due to bad conditions.","Conditions were ideal for the athlete.","The athlete was unaffected by conditions."],a:"The athlete continued despite unfavorable circumstances."},
+/* ── LEVEL 1 ── */
+{d:1,t:'"She is my best friend."',o:["No one is closer to her than me.","She doesn't like me.","I don't have friends.","We are strangers."],a:"No one is closer to her than me."},
+{d:1,t:'"I love chocolate ice cream."',o:["Chocolate ice cream is my favorite.","I hate ice cream.","I never eat ice cream.","I prefer vanilla."],a:"Chocolate ice cream is my favorite."},
+{d:1,t:'"The dog is sleeping on the bed."',o:["The dog is on the bed and asleep.","The dog is running around.","There is no dog.","The dog is hungry."],a:"The dog is on the bed and asleep."},
+{d:1,t:'"I am hungry."',o:["I want to eat.","I just ate.","I am full.","I'm not hungry."],a:"I want to eat."},
+{d:1,t:'"My sister is older than me."',o:["I am younger than my sister.","My sister is younger.","We are the same age.","I have no sister."],a:"I am younger than my sister."},
+{d:1,t:'"It is hot today."',o:["The weather is warm today.","Today is cold.","It is snowing.","The weather is nice."],a:"The weather is warm today."},
+{d:1,t:'"She has a new car."',o:["She bought a car recently.","Her car is old.","She doesn't drive.","She sold her car."],a:"She bought a car recently."},
+{d:1,t:'"I can speak English."',o:["I know how to speak English.","I don't know English.","I am learning English.","English is hard for me."],a:"I know how to speak English."},
+{d:1,t:'"The store is open."',o:["You can go shopping now.","The store is closed.","The store doesn't exist.","Don't go to the store."],a:"You can go shopping now."},
+{d:1,t:'"I have two cats."',o:["I own two cats.","I want a cat.","I have no pets.","Cats don't like me."],a:"I own two cats."},
+{d:1,t:'"She is very happy today."',o:["She feels great today.","She is sad today.","She is angry.","She doesn't feel anything."],a:"She feels great today."},
+{d:1,t:'"This dress is beautiful."',o:["I think the dress looks great.","The dress is ugly.","I hate the dress.","I don't like dresses."],a:"I think the dress looks great."},
+/* ── LEVEL 2 (NEW) ── */
+{d:2,t:'"I have been waiting for an hour."',o:["I have been here for an hour already.","I just arrived.","I am going to wait.","I will leave soon."],a:"I have been here for an hour already."},
+{d:2,t:'"She is not coming to the party."',o:["She will miss the party.","She is at the party.","She loves parties.","She is the host."],a:"She will miss the party."},
+{d:2,t:'"You should drink more water."',o:["It would be good for you to drink more water.","Stop drinking water.","Water is bad.","Don't drink water."],a:"It would be good for you to drink more water."},
+{d:2,t:'"I used to play piano when I was young."',o:["I played piano in the past.","I still play piano daily.","I never played piano.","I want to learn piano."],a:"I played piano in the past."},
+{d:2,t:'"My phone was stolen yesterday."',o:["Someone took my phone yesterday.","I lost my phone.","I sold my phone.","I bought a phone."],a:"Someone took my phone yesterday."},
+{d:2,t:`"Don't forget to lock the door."`,o:["Remember to lock the door.","Leave the door open.","Break the door.","The door is broken."],a:"Remember to lock the door."},
+{d:2,t:'"She is the tallest in her class."',o:["No one in her class is taller than her.","She is short.","Everyone is taller.","She is average height."],a:"No one in her class is taller than her."},
+{d:2,t:'"It might rain later."',o:["There is a chance of rain.","It will definitely rain.","It is sunny.","Rain is impossible."],a:"There is a chance of rain."},
+{d:2,t:'"He has just left the office."',o:["He went out of the office a moment ago.","He arrived at the office.","He is still in the office.","He never works."],a:"He went out of the office a moment ago."},
+{d:2,t:`"I don't have enough money for this."`,o:["I can't afford it.","I am rich.","I want to buy it.","It's very cheap."],a:"I can't afford it."},
+{d:2,t:'"She prefers tea to coffee."',o:["She likes tea more than coffee.","She likes coffee more.","She doesn't drink either.","Tea and coffee are the same."],a:"She likes tea more than coffee."},
+{d:2,t:'"They will arrive in an hour."',o:["They will be here in 60 minutes.","They just arrived.","They left an hour ago.","They aren't coming."],a:"They will be here in 60 minutes."},
+{d:2,t:'"If I were you, I would apologize."',o:["I think you should say sorry.","Don't apologize.","I won't apologize.","You're right."],a:"I think you should say sorry."},
+{d:2,t:`"I'm sorry, the meeting has been cancelled."`,o:["The meeting will not take place.","The meeting starts now.","I'm coming to the meeting.","The meeting is delayed."],a:"The meeting will not take place."},
+{d:2,t:'"She always wakes up early."',o:["Early waking is her routine.","She likes sleeping late.","She works at night.","She never sleeps."],a:"Early waking is her routine."},
+{d:2,t:`"I haven't seen him for ages."`,o:["It's been a very long time since I saw him.","I just saw him.","I see him daily.","I don't know him."],a:"It's been a very long time since I saw him."},
+{d:2,t:`"You'd better take an umbrella."`,o:["It would be wise to bring an umbrella.","Leave the umbrella.","It's sunny.","Don't go out."],a:"It would be wise to bring an umbrella."},
+/* ── LEVEL 3 (refreshed) ── */
+{d:3,t:'"The gymnast practiced until she perfected the move."',o:["She didn't stop until it was perfect.","She gave up quickly.","She practiced once.","She never perfected it."],a:"She didn't stop until it was perfect."},
+{d:3,t:'"The competition was cancelled because of the weather."',o:["Weather conditions led to the cancellation.","The competition took place.","The weather was perfect.","They moved it indoors."],a:"Weather conditions led to the cancellation."},
+/* new L3 */
+{d:3,t:'"Despite her injury, she finished the routine."',o:["She completed the routine even though she was hurt.","She quit because of her injury.","She wasn't injured.","She didn't perform."],a:"She completed the routine even though she was hurt."},
+{d:3,t:`"The store will refund your money if you're not satisfied."`,o:["You can get your money back if you're unhappy with the product.","Refunds aren't possible.","The store keeps your money.","You must be satisfied."],a:"You can get your money back if you're unhappy with the product."},
+{d:3,t:'"She refused to give up on her dream."',o:["She continued pursuing her dream despite difficulties.","She abandoned her dream.","She didn't have a dream.","Her dream came true easily."],a:"She continued pursuing her dream despite difficulties."},
+{d:3,t:'"The new policy will take effect next month."',o:["The new rules will start being applied next month.","The policy was cancelled.","The policy ended.","Nothing will change."],a:"The new rules will start being applied next month."},
+{d:3,t:'"He apologized for being late to practice."',o:["He said sorry because he arrived late to training.","He arrived on time.","He didn't apologize.","He was early."],a:"He said sorry because he arrived late to training."},
+{d:3,t:`"It's no use complaining about the score."`,o:["Complaining about the score won't change anything.","You should complain loudly.","The score is great.","Everyone is complaining."],a:"Complaining about the score won't change anything."},
+{d:3,t:'"She managed to finish the marathon despite the heat."',o:["She succeeded in completing the marathon although it was hot.","She gave up because of the heat.","The weather was cool.","She didn't run."],a:"She succeeded in completing the marathon although it was hot."},
+{d:3,t:`"You'd better start saving money for the trip."`,o:["It's advisable to begin putting money aside for the trip.","Don't go on the trip.","Money isn't important.","Spend all your money."],a:"It's advisable to begin putting money aside for the trip."},
+{d:3,t:'"The judges were impressed by her artistry."',o:["The judges admired her artistic expression.","The judges disliked her performance.","She wasn't artistic.","Judges weren't watching."],a:"The judges admired her artistic expression."},
+{d:3,t:'"This product is no longer available."',o:["You can't buy this product anymore.","The product is on sale.","Many products are available.","Try buying it tomorrow."],a:"You can't buy this product anymore."},
+{d:3,t:'"As soon as I arrived, the show began."',o:["The show started immediately after my arrival.","The show ended before I arrived.","I missed the show.","The show was cancelled."],a:"The show started immediately after my arrival."},
+{d:3,t:'"She rarely misses her morning workout."',o:["She almost always does her morning exercise.","She never works out.","She works out at night.","She skips workouts often."],a:"She almost always does her morning exercise."},
+{d:3,t:'"The coach insisted that we attend every practice."',o:["The coach firmly required us to come to all practices.","Attendance was optional.","The coach didn't care.","Practices were rare."],a:"The coach firmly required us to come to all practices."},
+{d:3,t:'"Tickets sold out within minutes."',o:["All the tickets were bought very quickly.","No one bought tickets.","Tickets were free.","Tickets are still available."],a:"All the tickets were bought very quickly."},
+/* ── LEVEL 4 (trimmed) ── */
+{d:4,t:'"The coach attributed success to rigorous training."',o:["Intensive training led to success.","Training was unnecessary.","They succeeded without training.","The coach was unhappy."],a:"Intensive training led to success."},
+{d:4,t:'"Had she not stretched, the injury could have been worse."',o:["Stretching prevented worse injury.","Stretching caused her injury.","She didn't stretch.","Injury was unrelated."],a:"Stretching prevented worse injury."},
+{d:4,t:'"Only after she reviewed the footage did she notice the error."',o:["She discovered the mistake when she watched the recording.","She noticed the error immediately.","She never found errors.","The footage was unavailable."],a:"She discovered the mistake when she watched the recording."},
+{d:4,t:'"The store revised its return policy to accommodate online purchases."',o:["The return rules were updated to include online items.","Online returns are impossible.","The store eliminated returns.","Nothing changed."],a:"The return rules were updated to include online items."},
+/* ── LEVEL 5 (trimmed) ── */
+{d:5,t:'"No sooner had the routine begun than the ribbon slipped."',o:["The ribbon fell right at the start.","She held it the whole time.","It ended before it fell.","She never used a ribbon."],a:"The ribbon fell right at the start."},
+{d:5,t:'"Scarcely had the season concluded when preparations for the next began."',o:["Preparations for the new season started almost immediately.","There was a long break between seasons.","No preparations were made.","The season never ended."],a:"Preparations for the new season started almost immediately."},
+{d:5,t:`"The athlete conceded that her rival's performance had been superior."`,o:["She admitted her competitor performed better.","She claimed she was the best.","She refused to acknowledge her rival.","Her rival performed poorly."],a:"She admitted her competitor performed better."},
+/* ── LEVEL 6 (trimmed) ── */
+{d:6,t:'"The proliferation of e-commerce has rendered traditional retail obsolete."',o:["Online shopping made store-based selling outdated.","Stores are more popular than ever.","E-commerce failed.","Online shopping is declining."],a:"Online shopping made store-based selling outdated."},
+{d:6,t:'"Notwithstanding the adverse conditions, the athlete persevered."',o:["The athlete continued despite unfavorable circumstances.","The athlete gave up.","Conditions were ideal.","The athlete was unaffected."],a:"The athlete continued despite unfavorable circumstances."},
 ],read:[
-{d:1,p:"Maria goes to the gym every morning at 7 AM. She starts with stretching for 10 minutes. Then she runs on the treadmill for 20 minutes. After running, she does weight exercises. She usually finishes at 8:30 AM.",
-q:"What does Maria do first at the gym?",o:["Stretching","Running","Weights","Drinking water"],a:"Stretching"},
-{d:1,p:"The new shopping mall has over 100 stores, a food court, and a cinema. Parking is free on weekends. It's open from 10 AM to 10 PM every day.",
-q:"When is parking free?",o:["Weekends","Every day","Mondays","Never"],a:"Weekends"},
-{d:2,p:"Rhythmic gymnastics combines dance, gymnastics, and apparatus. The five apparatus are rope, hoop, ball, clubs, and ribbon. Each routine lasts about 90 seconds and is performed to music. Gymnasts are judged on difficulty and artistry.",
-q:"How many apparatus are used?",o:["Five","Three","Six","Four"],a:"Five"},
-{d:2,p:"Rhythmic gymnastics combines dance, gymnastics, and apparatus. The five apparatus are rope, hoop, ball, clubs, and ribbon. Each routine lasts about 90 seconds and is performed to music. Gymnasts are judged on difficulty and artistry.",
-q:"What are gymnasts judged on?",o:["Difficulty and artistry","Speed only","Height","Strength"],a:"Difficulty and artistry"},
-{d:3,p:"Athletes now understand that nutrition directly affects performance. Carbohydrates provide quick energy, proteins repair muscles, and healthy fats give long-term energy. Even mild dehydration can reduce performance by up to 25%. Nutritionists recommend eating 2-3 hours before training.",
+/* ── LEVEL 1 (refreshed) ── */
+{d:1,p:"Anna is 12 years old. She likes pink and dogs. Every Saturday she goes to the park with her dog Bella. They play for two hours. Anna also likes ice cream. Her favorite is strawberry. After the park, she eats ice cream with her mom.",
+q:"What does Anna like?",o:["Pink and dogs","Cats and blue","Green and birds","Yellow and fish"],a:"Pink and dogs"},
+{d:1,p:"Anna is 12 years old. She likes pink and dogs. Every Saturday she goes to the park with her dog Bella. They play for two hours. Anna also likes ice cream. Her favorite is strawberry. After the park, she eats ice cream with her mom.",
+q:"What is Anna's favorite ice cream?",o:["Strawberry","Chocolate","Vanilla","Lemon"],a:"Strawberry"},
+{d:1,p:"My name is Tom. I am from Israel. I am a student. I study English at school. I have many friends. We play soccer after school. I also like to read books and watch movies.",
+q:"Where is Tom from?",o:["Israel","England","France","Italy"],a:"Israel"},
+{d:1,p:"My name is Tom. I am from Israel. I am a student. I study English at school. I have many friends. We play soccer after school. I also like to read books and watch movies.",
+q:"What does Tom do after school?",o:["Play soccer","Study math","Sleep","Cook dinner"],a:"Play soccer"},
+{d:1,p:"Lika trains gymnastics. She goes to the gym five days a week. She practices with a ribbon and a ball. Her coach is very nice. After training, Lika is tired but happy.",
+q:"How often does Lika go to the gym?",o:["Five days a week","Every day","Once a week","On Sundays"],a:"Five days a week"},
+{d:1,p:"Lika trains gymnastics. She goes to the gym five days a week. She practices with a ribbon and a ball. Her coach is very nice. After training, Lika is tired but happy.",
+q:"What does she use in practice?",o:["A ribbon and a ball","A hat and shoes","A book and pen","A bike and helmet"],a:"A ribbon and a ball"},
+/* ── LEVEL 2 (NEW) ── */
+{d:2,p:"Last summer, my family went to Greece for a vacation. We stayed in a small hotel near the beach. Every morning we had breakfast on the balcony. The food was amazing! In the afternoon, we swam in the sea or walked around the old town. The local people were very friendly and helped us a lot. We took many photos and bought small gifts for our friends. It was the best vacation we ever had.",
+q:"Where did the family stay?",o:["In a small hotel near the beach","At a friend's house","In a large city hotel","On a boat"],a:"In a small hotel near the beach"},
+{d:2,p:"Last summer, my family went to Greece for a vacation. We stayed in a small hotel near the beach. Every morning we had breakfast on the balcony. The food was amazing! In the afternoon, we swam in the sea or walked around the old town. The local people were very friendly and helped us a lot. We took many photos and bought small gifts for our friends. It was the best vacation we ever had.",
+q:"How were the local people?",o:["Very friendly","Unfriendly","Quiet","Too busy"],a:"Very friendly"},
+{d:2,p:"Maya works at a clothing store in the mall. She helps customers find the right size and style. Some customers are easy to help, but others are difficult. Last week, a woman couldn't decide between two dresses. Maya showed her three different options and explained the differences. Finally, the customer bought all three! Maya was very happy because she got a small bonus for her good work.",
+q:"What did the customer end up buying?",o:["All three dresses","Two dresses","One dress","Nothing"],a:"All three dresses"},
+{d:2,p:"Maya works at a clothing store in the mall. She helps customers find the right size and style. Some customers are easy to help, but others are difficult. Last week, a woman couldn't decide between two dresses. Maya showed her three different options and explained the differences. Finally, the customer bought all three! Maya was very happy because she got a small bonus for her good work.",
+q:"Why was Maya happy?",o:["She got a bonus","She bought a dress","She finished early","She met a friend"],a:"She got a bonus"},
+{d:2,p:"Healthy eating doesn't have to be expensive or boring. Many people think they need special foods to be healthy, but that's not true. Fresh fruits and vegetables from the market are usually cheaper than packaged snacks. Drinking water instead of soda saves money too. Cooking at home with simple ingredients is one of the best ways to eat well. You don't need fancy recipes—just fresh food and a little time.",
+q:"What is the main idea of this passage?",o:["Healthy eating can be simple and affordable","You need to be rich to eat well","Cooking at home is too expensive","Fruits are very expensive"],a:"Healthy eating can be simple and affordable"},
+{d:2,p:"Healthy eating doesn't have to be expensive or boring. Many people think they need special foods to be healthy, but that's not true. Fresh fruits and vegetables from the market are usually cheaper than packaged snacks. Drinking water instead of soda saves money too. Cooking at home with simple ingredients is one of the best ways to eat well. You don't need fancy recipes—just fresh food and a little time.",
+q:"What should you drink instead of soda?",o:["Water","Coffee","Juice","Milk"],a:"Water"},
+/* ── LEVEL 3 (refreshed) ── */
+{d:3,p:"Rhythmic gymnastics is one of the most artistic Olympic sports. It combines elements of ballet, dance, and gymnastics with the use of apparatus such as ribbons, balls, hoops, ropes, and clubs. The sport requires not only physical strength and flexibility but also creativity and musicality. Each routine lasts approximately 75 to 90 seconds and is performed to carefully chosen music. The gymnast must show difficulty, originality, and perfect execution to score well.",
+q:"What does the sport require?",o:["Strength, flexibility, creativity, and musicality","Only flexibility","Only strength","Only musical talent"],a:"Strength, flexibility, creativity, and musicality"},
+{d:3,p:"Rhythmic gymnastics is one of the most artistic Olympic sports. It combines elements of ballet, dance, and gymnastics with the use of apparatus such as ribbons, balls, hoops, ropes, and clubs. The sport requires not only physical strength and flexibility but also creativity and musicality. Each routine lasts approximately 75 to 90 seconds and is performed to carefully chosen music. The gymnast must show difficulty, originality, and perfect execution to score well.",
+q:"How long does a routine last?",o:["About 75-90 seconds","About 30 seconds","About 3 minutes","Exactly 60 seconds"],a:"About 75-90 seconds"},
+{d:3,p:"Many people enjoy shopping online because of its convenience. You can browse hundreds of products without leaving your home, compare prices easily, and read reviews from other customers. However, online shopping also has disadvantages. You can't try on clothes or feel the quality of products before buying. Returns can sometimes be complicated. Despite these issues, online shopping continues to grow because it saves time and often offers better prices than physical stores.",
+q:"What is one disadvantage of online shopping mentioned?",o:["You can't try clothes on first","Prices are higher","Reviews are hidden","It takes too long"],a:"You can't try clothes on first"},
+{d:3,p:"Many people enjoy shopping online because of its convenience. You can browse hundreds of products without leaving your home, compare prices easily, and read reviews from other customers. However, online shopping also has disadvantages. You can't try on clothes or feel the quality of products before buying. Returns can sometimes be complicated. Despite these issues, online shopping continues to grow because it saves time and often offers better prices than physical stores.",
+q:"Why does online shopping continue to grow?",o:["It saves time and offers better prices","Reviews are always accurate","Everyone loves it","Stores are closing"],a:"It saves time and offers better prices"},
+/* ── LEVEL 4 (trimmed) ── */
+{d:4,p:"Athletes now understand that nutrition directly affects performance. Carbohydrates provide quick energy, proteins repair muscles, and healthy fats give long-term energy. Even mild dehydration can reduce performance by up to 25%. Nutritionists recommend eating 2-3 hours before training.",
 q:"By how much can mild dehydration reduce performance?",o:["Up to 25%","Up to 10%","Up to 50%","Up to 5%"],a:"Up to 25%"},
-{d:4,p:"The 2025 FIG Code of Points introduced modifications: greater emphasis on body element variety, refined apparatus difficulty criteria with higher values for complex throws with rotations, and stricter execution penalties for apparatus loss and incomplete catches.",
-q:"What receives stricter penalties?",o:["Apparatus loss and incomplete catches","High jumps","Music choice","Costume design"],a:"Apparatus loss and incomplete catches"},
-{d:5,p:"Research shows 87% of consumers begin buying online, even if purchasing in-store. 'Showrooming' — checking in-store then buying online — has forced retailers to adopt omnichannel strategies. 'Webrooming' accounts for 70% of transactions.",
-q:"What is 'showrooming'?",o:["Checking in-store, buying online","Buying everything in-store","Avoiding online shopping","Returning items"],a:"Checking in-store, buying online"},
-// ── NEW READ QUESTIONS ──
-{d:1,p:"Lisa wants to buy a new pair of running shoes. She goes to the sports store near her house. The salesperson shows her three different pairs. She tries them all on and picks the most comfortable ones. They cost $80, but there is a 25% discount today. Lisa pays with her credit card and leaves happy.",
-q:"Why did Lisa choose those shoes?",o:["They were the most comfortable","They were the cheapest","They were the prettiest","The salesperson told her to"],a:"They were the most comfortable"},
-{d:1,p:"Lisa wants to buy a new pair of running shoes. She goes to the sports store near her house. The salesperson shows her three different pairs. She tries them all on and picks the most comfortable ones. They cost $80, but there is a 25% discount today. Lisa pays with her credit card and leaves happy.",
-q:"How does Lisa pay?",o:["Credit card","Cash","Check","Phone"],a:"Credit card"},
-{d:2,p:"A healthy breakfast should include a mix of carbohydrates, protein, and healthy fats. Whole grain cereal with milk and fruit is a good option. Eggs with vegetables provide excellent protein. Experts say that skipping breakfast can lead to lower energy levels and poor concentration during the morning. Drinking water first thing in the morning is also important for hydration after sleeping.",
-q:"What can skipping breakfast cause?",o:["Lower energy and poor concentration","Weight loss","Better focus","Improved sleep"],a:"Lower energy and poor concentration"},
-{d:2,p:"A healthy breakfast should include a mix of carbohydrates, protein, and healthy fats. Whole grain cereal with milk and fruit is a good option. Eggs with vegetables provide excellent protein. Experts say that skipping breakfast can lead to lower energy levels and poor concentration during the morning. Drinking water first thing in the morning is also important for hydration after sleeping.",
-q:"Why is drinking water in the morning recommended?",o:["For hydration after sleep","To replace breakfast","To lose weight","To improve taste of food"],a:"For hydration after sleep"},
-{d:3,p:"The evolution of competitive rhythmic gymnastics has been shaped by periodic revisions to the FIG Code of Points. Each quadrennial update introduces modifications that reflect the sport's technical progression. The 2025 code, for instance, placed renewed emphasis on the quality of body movements rather than sheer quantity. Coaches worldwide had to restructure their training programs to prioritize execution scores, which now carry more weight in the final ranking than in previous cycles.",
+{d:4,p:"The evolution of competitive rhythmic gymnastics has been shaped by periodic revisions to the FIG Code of Points. Each quadrennial update introduces modifications that reflect the sport's technical progression. The 2025 code placed renewed emphasis on the quality of body movements rather than sheer quantity.",
 q:"What did the 2025 code prioritize?",o:["Quality of body movements over quantity","More apparatus throws","Faster routines","Younger athletes"],a:"Quality of body movements over quantity"},
-{d:3,p:"The evolution of competitive rhythmic gymnastics has been shaped by periodic revisions to the FIG Code of Points. Each quadrennial update introduces modifications that reflect the sport's technical progression. The 2025 code, for instance, placed renewed emphasis on the quality of body movements rather than sheer quantity. Coaches worldwide had to restructure their training programs to prioritize execution scores, which now carry more weight in the final ranking than in previous cycles.",
-q:"How often is the FIG Code updated according to the passage?",o:["Every four years","Every year","Every ten years","It never changes"],a:"Every four years"},
-{d:4,p:"The psychological dimension of athletic performance is increasingly recognized as a determinant of competitive outcomes. Research published in the Journal of Sports Psychology demonstrates that visualization techniques — mentally rehearsing routines before execution — can improve performance by 13-17%. Furthermore, athletes who engage in systematic mental training report lower competition anxiety and greater confidence. Interestingly, the efficacy of these techniques appears to be independent of the athlete's physical skill level, suggesting that mental preparation benefits novices and experts equally.",
-q:"What do visualization techniques involve?",o:["Mentally rehearsing before performing","Watching videos of competitors","Physical practice repetitions","Reading about the sport"],a:"Mentally rehearsing before performing"},
-{d:4,p:"The psychological dimension of athletic performance is increasingly recognized as a determinant of competitive outcomes. Research published in the Journal of Sports Psychology demonstrates that visualization techniques — mentally rehearsing routines before execution — can improve performance by 13-17%. Furthermore, athletes who engage in systematic mental training report lower competition anxiety and greater confidence. Interestingly, the efficacy of these techniques appears to be independent of the athlete's physical skill level, suggesting that mental preparation benefits novices and experts equally.",
-q:"The passage suggests mental training is:",o:["Equally helpful regardless of skill level","Only useful for beginners","Only useful for experts","Not supported by research"],a:"Equally helpful regardless of skill level"},
-{d:5,p:"The commodification of athletic identity in the digital age presents a paradox: while social media platforms provide athletes with unprecedented opportunities for self-promotion and financial independence through sponsorship, they simultaneously subject athletes to relentless public scrutiny that can be psychologically deleterious. Studies conducted across multiple Olympic disciplines indicate that athletes who maintain a high social media presence are 2.3 times more likely to report symptoms of anxiety and burnout compared to their less digitally active counterparts. This finding challenges the prevailing narrative that personal branding is an unequivocal benefit to modern athletes.",
-q:"According to the passage, high social media presence among athletes is linked to:",o:["Higher rates of anxiety and burnout","Better competitive performance","Improved mental health","Reduced public interest"],a:"Higher rates of anxiety and burnout"},
+/* ── LEVEL 5 (trimmed) ── */
+{d:5,p:"The 2025 FIG Code of Points introduced modifications: greater emphasis on body element variety, refined apparatus difficulty criteria with higher values for complex throws with rotations, and stricter execution penalties for apparatus loss and incomplete catches.",
+q:"What receives stricter penalties?",o:["Apparatus loss and incomplete catches","High jumps","Music choice","Costume design"],a:"Apparatus loss and incomplete catches"},
+{d:5,p:"The psychological dimension of athletic performance is increasingly recognized as a determinant of competitive outcomes. Research demonstrates that visualization techniques can improve performance by 13-17%. Furthermore, athletes who engage in systematic mental training report lower competition anxiety and greater confidence.",
+q:"By how much can visualization improve performance?",o:["13-17%","50%","Almost none","30-40%"],a:"13-17%"},
+/* ── LEVEL 6 (trimmed) ── */
+{d:6,p:"The commodification of athletic identity in the digital age presents a paradox: while social media platforms provide athletes with unprecedented opportunities for self-promotion, they simultaneously subject athletes to relentless public scrutiny. Studies indicate that athletes who maintain a high social media presence are 2.3 times more likely to report symptoms of anxiety and burnout compared to their less digitally active counterparts.",
+q:"High social media presence among athletes is linked to:",o:["Higher rates of anxiety and burnout","Better performance","Improved mental health","Reduced public interest"],a:"Higher rates of anxiety and burnout"},
 ]};
-const HINTS={comp:{3:"Think about context — which word fits academically?",4:"Look for Latin/Greek roots.",5:"Consider precise technical meaning."},rest:{3:"Which sentence keeps the original meaning?",4:"Watch for inverted/conditional structures.",5:"Which captures every nuance?"},read:{3:"Re-read the relevant paragraph.",4:"Look for implied info, not just stated facts.",5:"What does the author imply?"}};
+const HINTS={comp:{4:"Think about context — which word fits academically?",5:"Look for Latin/Greek roots.",6:"Consider precise technical meaning."},rest:{4:"Which sentence keeps the original meaning?",5:"Watch for inverted/conditional structures.",6:"Which captures every nuance?"},read:{4:"Re-read the relevant paragraph.",5:"Look for implied info, not just stated facts.",6:"What does the author imply?"}};
 
 /* ═══════════════════════════════════════════
-   QUIZ ENGINE — with SHUFFLED answers
+   QUIZ ENGINE
    ═══════════════════════════════════════════ */
 let QZ={type:'',level:0,qs:[],qi:0,correct:0,total:0,timer:null,tLeft:0};
 
-/* Shuffle array and return mapping */
 function shuffleOpts(opts,correctText){
   const indices=[...Array(opts.length).keys()];
   for(let i=indices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[indices[i],indices[j]]=[indices[j],indices[i]];}
@@ -489,8 +644,8 @@ function shuffleOpts(opts,correctText){
 function startP(type,lv){
   lastType=type;lastLv=lv;QZ.type=type;QZ.level=lv;QZ.qi=0;QZ.correct=0;QZ.total=0;
   let pool=[];
-  if(type==='exam'){['comp','rest','read'].forEach(t=>{pool.push(...QB[t].filter(q=>q.d>=Math.max(1,lv-1)&&q.d<=Math.min(5,lv+1)).map(q=>({...q,qtype:t})));});}
-  else{pool=QB[type].filter(q=>q.d>=Math.max(1,lv-1)&&q.d<=Math.min(5,lv)).map(q=>({...q,qtype:type}));}
+  if(type==='exam'){['comp','rest','read'].forEach(t=>{pool.push(...QB[t].filter(q=>q.d>=Math.max(1,lv-1)&&q.d<=Math.min(6,lv+1)).map(q=>({...q,qtype:t})));});}
+  else{pool=QB[type].filter(q=>q.d>=Math.max(1,lv-1)&&q.d<=Math.min(6,lv)).map(q=>({...q,qtype:type}));}
   pool.sort(()=>Math.random()-.5);QZ.qs=pool.slice(0,Math.min(6,pool.length));
   if(!QZ.qs.length){toast('אין שאלות ברמה הזו','no');return;}
   document.getElementById('qBdg').textContent=`${{comp:'השלמת משפטים',rest:'ניסוח מחדש',read:'הבנת הנקרא',exam:'אמירנ"ט'}[type]} — ${LVS[lv-1].nm}`;
@@ -505,14 +660,13 @@ function showQ(){
   const tl={comp:'השלמת משפטים',rest:'ניסוח מחדש',read:'הבנת הנקרא'};
   const L=['A','B','C','D'];
 
-  // SHUFFLE options
   const{shuffled,correctIdx}=shuffleOpts(q.o,q.a);
   window._correctIdx=correctIdx;
-  window._currentQ=q; // store for word saving
+  window._currentQ=q;
 
   let h='<div class="qc">';
   h+=`<span class="tp">${tl[qt]||''} — רמה ${q.d}</span>`;
-  if(q.d>=3){const ht=HINTS[qt]&&HINTS[qt][q.d]||'Think carefully.';
+  if(q.d>=4){const ht=HINTS[qt]&&HINTS[qt][q.d]||'Think carefully.';
     h+=`<button class="hint-btn" onclick="this.style.display='none';this.nextElementSibling.style.display='block'">💡 רמז</button><div class="hint-text">${ht}</div>`;}
   if(q.p)h+=`<div class="psg">${q.p}</div>`;
   const txt=q.q||q.t;
@@ -541,28 +695,24 @@ function confA(){
   ok?(QZ.correct++,toast('!נכון 🎉','ok')):toast('ממשיכים 💪','no');
   QZ.total++;QZ.qi++;
 
-  // Show "save word" button for completion questions
   const q=window._currentQ;
   if(q&&!q.p){
     const area=document.getElementById('saveWordArea');
     area.style.display='block';
-    // Extract key word from correct answer
     const word=q.a;
-    const isSaved=D.uwBank.some(x=>x.w===word);
+    const isSaved=D.uwBank.some(x=>(typeof x==='string'?x:x.w)===word);
     area.innerHTML=isSaved?
       `<span class="save-word-btn saved">✅ "${word}" כבר שמורה</span>`:
-      `<button class="save-word-btn" onclick="saveWordFromQuiz('${word.replace(/'/g,"\\'")}')">📓 שמרי "${word}" לרשימת המילים</button>`;
+      `<button class="save-word-btn" onclick="saveWordFromQuiz('${word.replace(/'/g,"\\'")}')">📓 שמרי "${word}" לרשימה</button>`;
   }
   setTimeout(showQ,2200);
 }
 
 function saveWordFromQuiz(word){
-  if(!D.uwBank.some(x=>x.w===word)){
-    // Find meaning from VB or just save the word
+  if(!D.uwBank.some(x=>(typeof x==='string'?x:x.w)===word)){
     const vEntry=VB.find(v=>v.w.toLowerCase()===word.toLowerCase());
     D.uwBank.push({w:word,m:vEntry?vEntry.m:'—'});
     sv();toast(`"${word}" נשמרה! 📓`,'ok');
-    // Update button
     event.target.classList.add('saved');
     event.target.innerHTML=`✅ נשמרה!`;
   }
@@ -578,11 +728,12 @@ function updTd(){document.getElementById('tD').textContent=Math.floor(QZ.tLeft/6
 
 function finishQ(){
   clearInterval(QZ.timer);const pct=QZ.total?Math.round(QZ.correct/QZ.total*100):0;
-  const xp=QZ.correct*10+(QZ.level>=3?QZ.correct*5:0);D.xp+=xp;D.dd++;
+  const xp=QZ.correct*10+(QZ.level>=4?QZ.correct*5:0);D.xp+=xp;D.dd++;
   const t=new Date().toDateString();if(D.ld!==t){D.str++;D.ld=t;}
   const k={comp:'lc',rest:'lr',read:'lrd',exam:'le'}[QZ.type]||'le';
   let nLv=D[k],msg='';
-  if(pct>=75&&nLv<5){nLv++;msg=`📈 רמה מומלצת עלתה ל${LVS[nLv-1].nm}!`;}
+  // Adaptive: max level now 6, not 5
+  if(pct>=75&&nLv<6){nLv++;msg=`📈 רמה מומלצת עלתה ל${LVS[nLv-1].nm}!`;}
   else if(pct<40&&nLv>1){nLv--;msg=`📉 נמליץ לחזור ל${LVS[nLv-1].nm}`;}
   else msg=`✅ רמה מומלצת: ${LVS[nLv-1].nm}`;
   D[k]=nLv;sv();updUI();
@@ -624,99 +775,79 @@ let chatLv=40,fbFreq='every',chatHist=[],chatMsgCount=0;
 function setChatLv(lv){chatLv=lv;document.querySelectorAll('#chatLvlRow .toggle-btn').forEach(b=>b.classList.remove('act'));event.target.classList.add('act')}
 function setFbFreq(f){fbFreq=f;document.getElementById('fbEvery').classList.toggle('act',f==='every');document.getElementById('fbFew').classList.toggle('act',f==='few')}
 function addChatMsg(text,cls){const log=document.getElementById('chatLog'),d=document.createElement('div');d.className='chat-msg '+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;}
-async function sendChat(){const inp=document.getElementById('chatIn'),txt=inp.value.trim();if(!txt)return;inp.value='';addChatMsg(txt,'user');chatHist.push({role:'user',content:txt});chatMsgCount++;const shouldEval=fbFreq==='every'||(chatMsgCount%2===0);const sysPrompt=`You are a friendly English conversation partner. Difficulty: ${chatLv}/100. Adjust your vocab/grammar to level ${chatLv}. Keep responses 1-3 sentences. Topics: daily life, shopping, fitness, rhythmic gymnastics, travel, nutrition. ${shouldEval?'After responding, add: [SCORE: X/10] with brief grammar/vocab feedback. Rate 1(poor)-10(excellent) for grammar correctness and appropriateness. This is FREE TEXT — rate how well it fits grammatically.':'No scoring this turn.'}`;try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:sysPrompt,messages:chatHist})});const data=await res.json();const full=data.content.map(c=>c.text||'').join('');chatHist.push({role:'assistant',content:full});const sm=full.match(/\[SCORE:\s*(\d+)\/10\]\s*(.*)/s);if(sm){addChatMsg(full.substring(0,full.indexOf('[SCORE:')).trim(),'bot');addChatMsg(`📊 ${sm[1]}/10 — ${sm[2].trim()}`,'eval');}else{addChatMsg(full,'bot');}}catch(e){addChatMsg("Connection issue. Try again! 😊",'bot');}}
+async function sendChat(){const inp=document.getElementById('chatIn'),txt=inp.value.trim();if(!txt)return;inp.value='';addChatMsg(txt,'user');chatHist.push({role:'user',content:txt});chatMsgCount++;const shouldEval=fbFreq==='every'||(chatMsgCount%2===0);const sysPrompt=`You are a friendly English conversation partner. Difficulty: ${chatLv}/100. Adjust your vocab/grammar to level ${chatLv}. Keep responses 1-3 sentences. Topics: daily life, shopping, fitness, rhythmic gymnastics, travel, nutrition. ${shouldEval?'After responding, add: [SCORE: X/10] with brief grammar/vocab feedback. Rate 1(poor)-10(excellent) for grammar correctness and appropriateness.':'No scoring this turn.'}`;try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:sysPrompt,messages:chatHist})});const data=await res.json();const full=data.content.map(c=>c.text||'').join('');chatHist.push({role:'assistant',content:full});const sm=full.match(/\[SCORE:\s*(\d+)\/10\]\s*(.*)/s);if(sm){addChatMsg(full.substring(0,full.indexOf('[SCORE:')).trim(),'bot');addChatMsg(`📊 ${sm[1]}/10 — ${sm[2].trim()}`,'eval');}else{addChatMsg(full,'bot');}}catch(e){addChatMsg("Connection issue. Try again! 😊",'bot');}}
 let chatRecog=null,isChatRec=false;
 function tRecChat(){if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){alert('נסי Chrome');return}if(isChatRec){chatRecog&&chatRecog.stop();return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;chatRecog=new SR();chatRecog.lang='en-US';chatRecog.interimResults=false;const btn=document.getElementById('chatMic');chatRecog.onstart=()=>{isChatRec=true;btn.textContent='🔴';btn.style.background='var(--red)'};chatRecog.onresult=e=>{document.getElementById('chatIn').value=e.results[0][0].transcript;sendChat()};chatRecog.onend=()=>{isChatRec=false;btn.textContent='🎤';btn.style.background='var(--b6)'};chatRecog.onerror=()=>{isChatRec=false;btn.textContent='🎤';btn.style.background='var(--b6)'};chatRecog.start();}
 
 /* ═══════════════════════════════════════════
-   VOCABULARY — 100 words per level (500 total)
-   Topics: gymnastics, shopping, travel, daily, nutrition, health, work, social
+   VOCABULARY — 6 levels, focus on 1-3
+   d:1 Beginner | d:2 Pre-Elementary (NEW) | d:3 Elementary
+   d:4 Intermediate | d:5 Upper-Int | d:6 Advanced
    ═══════════════════════════════════════════ */
 const VB=[
-// ═══ LEVEL 1 (100 words) ═══
-{d:1,w:"stretch",m:"למתוח",ex:"Stretch before exercise."},{d:1,w:"size",m:"מידה",ex:"What size do you wear?"},{d:1,w:"healthy",m:"בריא",ex:"Eating fruit is healthy."},{d:1,w:"receipt",m:"קבלה",ex:"Keep the receipt."},{d:1,w:"score",m:"ציון",ex:"She got a high score."},{d:1,w:"coach",m:"מאמן/ת",ex:"The coach was proud."},{d:1,w:"price",m:"מחיר",ex:"What's the price?"},{d:1,w:"flight",m:"טיסה",ex:"Our flight is at 10."},{d:1,w:"practice",m:"תרגול",ex:"Practice makes perfect."},{d:1,w:"return",m:"להחזיר",ex:"I want to return this."},
-{d:1,w:"bag",m:"תיק",ex:"I need a new bag."},{d:1,w:"store",m:"חנות",ex:"The store is open."},{d:1,w:"dress",m:"שמלה",ex:"This dress is pretty."},{d:1,w:"shoes",m:"נעליים",ex:"I love these shoes."},{d:1,w:"train",m:"להתאמן / רכבת",ex:"She trains every day."},{d:1,w:"strong",m:"חזק",ex:"She is very strong."},{d:1,w:"tired",m:"עייף",ex:"I'm so tired today."},{d:1,w:"water",m:"מים",ex:"Drink more water."},{d:1,w:"food",m:"אוכל",ex:"The food is delicious."},{d:1,w:"hotel",m:"מלון",ex:"The hotel is nice."},
-{d:1,w:"beach",m:"חוף",ex:"Let's go to the beach."},{d:1,w:"ticket",m:"כרטיס",ex:"I need a ticket."},{d:1,w:"music",m:"מוזיקה",ex:"I love this music."},{d:1,w:"team",m:"קבוצה",ex:"She joined the team."},{d:1,w:"jump",m:"לקפוץ",ex:"She can jump very high."},{d:1,w:"fast",m:"מהר",ex:"She runs very fast."},{d:1,w:"body",m:"גוף",ex:"Exercise is good for your body."},{d:1,w:"warm",m:"חם / לחמם",ex:"Warm up before training."},{d:1,w:"pain",m:"כאב",ex:"I feel some pain."},{d:1,w:"rest",m:"מנוחה",ex:"You need to rest."},
-{d:1,w:"cheap",m:"זול",ex:"This shirt is cheap."},{d:1,w:"heavy",m:"כבד",ex:"This bag is heavy."},{d:1,w:"light",m:"קל / אור",ex:"This fabric is very light."},{d:1,w:"meal",m:"ארוחה",ex:"I had a big meal."},{d:1,w:"snack",m:"חטיף",ex:"I need a quick snack."},{d:1,w:"clean",m:"נקי",ex:"The gym is very clean."},{d:1,w:"card",m:"כרטיס",ex:"Can I pay by card?"},{d:1,w:"cash",m:"מזומן",ex:"I only have cash."},{d:1,w:"wait",m:"לחכות",ex:"Please wait here."},{d:1,w:"help",m:"עזרה",ex:"Can you help me?"},
-{d:1,w:"open",m:"פתוח / לפתוח",ex:"The store is open."},{d:1,w:"close",m:"סגור / לסגור",ex:"The gym closes at 9."},{d:1,w:"free",m:"חינם / חופשי",ex:"Parking is free."},{d:1,w:"walk",m:"ללכת / הליכה",ex:"I walk to work."},{d:1,w:"run",m:"לרוץ",ex:"She runs every morning."},{d:1,w:"swim",m:"לשחות",ex:"I like to swim."},{d:1,w:"dance",m:"לרקוד",ex:"She loves to dance."},{d:1,w:"wear",m:"ללבוש",ex:"What should I wear?"},{d:1,w:"fit",m:"מתאים",ex:"This dress fits perfectly."},{d:1,w:"try",m:"לנסות",ex:"Can I try this on?"},
-{d:1,w:"sale",m:"מבצע",ex:"There's a big sale today."},{d:1,w:"gift",m:"מתנה",ex:"I need a gift."},{d:1,w:"color",m:"צבע",ex:"What color do you want?"},{d:1,w:"tall",m:"גבוה",ex:"She is very tall."},{d:1,w:"short",m:"נמוך / קצר",ex:"The skirt is too short."},{d:1,w:"long",m:"ארוך",ex:"The line is very long."},{d:1,w:"small",m:"קטן",ex:"This is too small."},{d:1,w:"large",m:"גדול",ex:"Do you have a large?"},{d:1,w:"round",m:"עגול",ex:"The ball is round."},{d:1,w:"soft",m:"רך",ex:"This fabric is soft."},
-{d:1,w:"hard",m:"קשה",ex:"The test was hard."},{d:1,w:"easy",m:"קל",ex:"This exercise is easy."},{d:1,w:"hungry",m:"רעב",ex:"I'm very hungry."},{d:1,w:"thirsty",m:"צמא",ex:"I'm thirsty."},{d:1,w:"happy",m:"שמח",ex:"I'm happy today."},{d:1,w:"tired",m:"עייף",ex:"She's tired after training."},{d:1,w:"safe",m:"בטוח",ex:"Is it safe to swim?"},{d:1,w:"late",m:"מאוחר",ex:"I'm running late."},{d:1,w:"early",m:"מוקדם",ex:"I woke up early."},{d:1,w:"ready",m:"מוכן",ex:"I'm ready to go."},
-{d:1,w:"wrong",m:"לא נכון",ex:"Something is wrong."},{d:1,w:"right",m:"נכון / ימין",ex:"That's the right answer."},{d:1,w:"meet",m:"לפגוש",ex:"Nice to meet you."},{d:1,w:"carry",m:"לשאת",ex:"Can you carry this?"},{d:1,w:"bring",m:"להביא",ex:"Bring your water bottle."},{d:1,w:"pay",m:"לשלם",ex:"Where do I pay?"},{d:1,w:"cost",m:"עלות",ex:"How much does it cost?"},{d:1,w:"send",m:"לשלוח",ex:"Send me the address."},{d:1,w:"order",m:"להזמין",ex:"I'd like to order."},{d:1,w:"change",m:"עודף / לשנות",ex:"Keep the change."},
-{d:1,w:"begin",m:"להתחיל",ex:"Let's begin!"},{d:1,w:"finish",m:"לסיים",ex:"I need to finish."},{d:1,w:"leave",m:"לעזוב",ex:"We leave at 8."},{d:1,w:"arrive",m:"להגיע",ex:"We arrived safely."},{d:1,w:"choose",m:"לבחור",ex:"I can't choose."},{d:1,w:"feel",m:"להרגיש",ex:"I feel great."},{d:1,w:"think",m:"לחשוב",ex:"I think so."},{d:1,w:"lose",m:"לאבד / להפסיד",ex:"Don't lose the receipt."},{d:1,w:"win",m:"לנצח",ex:"She wants to win."},{d:1,w:"miss",m:"לפספס / להתגעגע",ex:"I miss you."},
-
-// ═══ LEVEL 2 (100 words) ═══
-{d:2,w:"routine",m:"שגרה / מופע",ex:"Her routine was beautiful."},{d:2,w:"discount",m:"הנחה",ex:"30% discount today."},{d:2,w:"balance",m:"איזון",ex:"Balance is key in gymnastics."},{d:2,w:"exchange",m:"להחליף",ex:"I'd like to exchange this."},{d:2,w:"flexibility",m:"גמישות",ex:"She has great flexibility."},{d:2,w:"recommend",m:"להמליץ",ex:"I recommend this place."},{d:2,w:"competition",m:"תחרות",ex:"The competition is next week."},{d:2,w:"luggage",m:"מזוודות",ex:"Don't forget your luggage."},{d:2,w:"performance",m:"הופעה / ביצועים",ex:"Great performance!"},{d:2,w:"schedule",m:"לוח זמנים",ex:"What's today's schedule?"},
-{d:2,w:"improve",m:"לשפר",ex:"I want to improve."},{d:2,w:"achieve",m:"להשיג",ex:"She achieved her goal."},{d:2,w:"compare",m:"להשוות",ex:"Let's compare prices."},{d:2,w:"measure",m:"למדוד",ex:"Measure before you buy."},{d:2,w:"deliver",m:"למסור / לשלוח",ex:"Can you deliver it?"},{d:2,w:"quality",m:"איכות",ex:"High quality fabric."},{d:2,w:"material",m:"חומר / בד",ex:"What material is this?"},{d:2,w:"foreign",m:"זר",ex:"She speaks a foreign language."},{d:2,w:"popular",m:"פופולרי",ex:"This brand is popular."},{d:2,w:"available",m:"זמין",ex:"Is this available in blue?"},
-{d:2,w:"strength",m:"כוח",ex:"She has great strength."},{d:2,w:"muscle",m:"שריר",ex:"My muscles are sore."},{d:2,w:"injury",m:"פציעה",ex:"She recovered from injury."},{d:2,w:"protein",m:"חלבון",ex:"Eat more protein."},{d:2,w:"energy",m:"אנרגיה",ex:"I need more energy."},{d:2,w:"vitamin",m:"ויטמין",ex:"Take your vitamins."},{d:2,w:"weight",m:"משקל",ex:"She lost weight."},{d:2,w:"exercise",m:"תרגיל / להתאמן",ex:"Exercise daily."},{d:2,w:"breathe",m:"לנשום",ex:"Remember to breathe."},{d:2,w:"relax",m:"להירגע",ex:"Try to relax."},
-{d:2,w:"passport",m:"דרכון",ex:"Where's my passport?"},{d:2,w:"reservation",m:"הזמנה מראש",ex:"I have a reservation."},{d:2,w:"departure",m:"יציאה / המראה",ex:"Departure is at 6."},{d:2,w:"arrival",m:"הגעה",ex:"Arrival time: 3 PM."},{d:2,w:"delay",m:"עיכוב",ex:"There's a flight delay."},{d:2,w:"currency",m:"מטבע",ex:"What currency do they use?"},{d:2,w:"guide",m:"מדריך",ex:"We hired a tour guide."},{d:2,w:"comfortable",m:"נוח",ex:"These shoes are comfortable."},{d:2,w:"crowded",m:"צפוף",ex:"The mall is crowded."},{d:2,w:"expensive",m:"יקר",ex:"This is too expensive."},
-{d:2,w:"customer",m:"לקוח",ex:"The customer is always right."},{d:2,w:"receipt",m:"קבלה",ex:"I need the receipt."},{d:2,w:"refund",m:"החזר כספי",ex:"Can I get a refund?"},{d:2,w:"brand",m:"מותג",ex:"What brand is this?"},{d:2,w:"fashion",m:"אופנה",ex:"She loves fashion."},{d:2,w:"online",m:"מקוון",ex:"I shop online."},{d:2,w:"variety",m:"מגוון",ex:"There's a big variety."},{d:2,w:"celebrate",m:"לחגוג",ex:"Let's celebrate!"},{d:2,w:"dessert",m:"קינוח",ex:"I want dessert."},{d:2,w:"recipe",m:"מתכון",ex:"Share the recipe."},
-{d:2,w:"attitude",m:"גישה",ex:"She has a great attitude."},{d:2,w:"effort",m:"מאמץ",ex:"It takes effort."},{d:2,w:"support",m:"תמיכה",ex:"Thank you for the support."},{d:2,w:"grateful",m:"אסיר תודה",ex:"I'm very grateful."},{d:2,w:"opportunity",m:"הזדמנות",ex:"A great opportunity."},{d:2,w:"experience",m:"ניסיון / חוויה",ex:"What an experience!"},{d:2,w:"advantage",m:"יתרון",ex:"That's an advantage."},{d:2,w:"challenge",m:"אתגר",ex:"It's a big challenge."},{d:2,w:"progress",m:"התקדמות",ex:"She made great progress."},{d:2,w:"confident",m:"בטוח בעצמו",ex:"She feels confident."},
-{d:2,w:"approach",m:"גישה / להתקרב",ex:"A new approach to training."},{d:2,w:"prepare",m:"להתכונן",ex:"Prepare for the exam."},{d:2,w:"succeed",m:"להצליח",ex:"She will succeed."},{d:2,w:"fail",m:"להיכשל",ex:"Don't fear failure."},{d:2,w:"develop",m:"לפתח",ex:"Develop your skills."},{d:2,w:"include",m:"לכלול",ex:"Breakfast is included."},{d:2,w:"contain",m:"להכיל",ex:"This contains nuts."},{d:2,w:"prefer",m:"להעדיף",ex:"I prefer blue."},{d:2,w:"deserve",m:"מגיע ל / ראוי",ex:"You deserve the best."},{d:2,w:"manage",m:"לנהל",ex:"She manages the team."},
-{d:2,w:"express",m:"לבטא",ex:"Express yourself!"},{d:2,w:"attend",m:"להשתתף / לנכוח",ex:"I'll attend the meeting."},{d:2,w:"notice",m:"לשים לב / הודעה",ex:"Did you notice?"},{d:2,w:"involve",m:"לערב / לכלול",ex:"It involves hard work."},{d:2,w:"purpose",m:"מטרה",ex:"What's the purpose?"},{d:2,w:"prevent",m:"למנוע",ex:"Prevent injuries."},{d:2,w:"require",m:"לדרוש",ex:"This requires practice."},{d:2,w:"consider",m:"לשקול",ex:"Consider all options."},{d:2,w:"increase",m:"להגדיל / עלייה",ex:"Increase your flexibility."},{d:2,w:"reduce",m:"להפחית",ex:"Reduce sugar intake."},
-
-// ═══ LEVEL 3 (100 words) ═══
-{d:3,w:"apparatus",m:"מכשיר (התעמלות)",ex:"The ribbon is an apparatus."},{d:3,w:"nutrition",m:"תזונה",ex:"Good nutrition helps."},{d:3,w:"significant",m:"משמעותי",ex:"A significant improvement."},{d:3,w:"purchase",m:"לרכוש",ex:"Thank you for your purchase."},{d:3,w:"demonstrate",m:"להדגים",ex:"Demonstrate the technique."},{d:3,w:"itinerary",m:"מסלול טיול",ex:"Check our itinerary."},{d:3,w:"evaluate",m:"להעריך",ex:"Judges evaluate the routine."},{d:3,w:"sufficient",m:"מספיק",ex:"Sufficient rest is essential."},{d:3,w:"fundamental",m:"בסיסי / יסודי",ex:"A fundamental principle."},{d:3,w:"recovery",m:"החלמה",ex:"Recovery takes time."},
-{d:3,w:"accurate",m:"מדויק",ex:"Accurate measurements needed."},{d:3,w:"strategy",m:"אסטרטגיה",ex:"A winning strategy."},{d:3,w:"consequence",m:"תוצאה / השלכה",ex:"Think about consequences."},{d:3,w:"establish",m:"להקים / לבסס",ex:"Establish a routine."},{d:3,w:"contribute",m:"לתרום",ex:"Everyone can contribute."},{d:3,w:"interpret",m:"לפרש",ex:"Interpret the results."},{d:3,w:"maintain",m:"לתחזק / לשמר",ex:"Maintain your flexibility."},{d:3,w:"obtain",m:"להשיג",ex:"Obtain a higher score."},{d:3,w:"determine",m:"לקבוע",ex:"Judges determine the score."},{d:3,w:"adjust",m:"להתאים",ex:"Adjust your technique."},
-{d:3,w:"emphasis",m:"דגש",ex:"Greater emphasis on variety."},{d:3,w:"modify",m:"לשנות",ex:"Modify the routine."},{d:3,w:"deduction",m:"ניכוי",ex:"Execution deductions."},{d:3,w:"element",m:"אלמנט",ex:"Add more body elements."},{d:3,w:"rotation",m:"סיבוב",ex:"Complex body rotations."},{d:3,w:"innovation",m:"חדשנות",ex:"Technical innovation."},{d:3,w:"consistency",m:"עקביות",ex:"Consistency is key."},{d:3,w:"intensity",m:"עוצמה",ex:"High training intensity."},{d:3,w:"endurance",m:"סיבולת",ex:"Build your endurance."},{d:3,w:"supplement",m:"תוסף",ex:"Protein supplements."},
-{d:3,w:"destination",m:"יעד",ex:"A popular destination."},{d:3,w:"accommodation",m:"מקום לינה",ex:"Book accommodation."},{d:3,w:"bargain",m:"מציאה / למקח",ex:"That's a real bargain."},{d:3,w:"guarantee",m:"אחריות",ex:"Money-back guarantee."},{d:3,w:"transaction",m:"עסקה",ex:"Complete the transaction."},{d:3,w:"alternative",m:"חלופה",ex:"Is there an alternative?"},{d:3,w:"circumstances",m:"נסיבות",ex:"Under the circumstances."},{d:3,w:"efficiency",m:"יעילות",ex:"Improve efficiency."},{d:3,w:"evidence",m:"ראיות / עדות",ex:"Scientific evidence."},{d:3,w:"influence",m:"השפעה",ex:"A positive influence."},
-{d:3,w:"opportunity",m:"הזדמנות",ex:"A great opportunity."},{d:3,w:"perspective",m:"נקודת מבט",ex:"From her perspective."},{d:3,w:"phenomenon",m:"תופעה",ex:"A natural phenomenon."},{d:3,w:"principle",m:"עיקרון",ex:"Basic principles."},{d:3,w:"procedure",m:"הליך",ex:"Follow the procedure."},{d:3,w:"proportion",m:"פרופורציה",ex:"In the right proportion."},{d:3,w:"relevant",m:"רלוונטי",ex:"Is this relevant?"},{d:3,w:"substance",m:"חומר",ex:"A harmful substance."},{d:3,w:"technique",m:"טכניקה",ex:"Perfect your technique."},{d:3,w:"theory",m:"תיאוריה",ex:"In theory, yes."},
-{d:3,w:"adequate",m:"הולם / מספיק",ex:"Adequate preparation."},{d:3,w:"beneficial",m:"מועיל",ex:"Stretching is beneficial."},{d:3,w:"complex",m:"מורכב",ex:"A complex routine."},{d:3,w:"distinct",m:"מובחן / שונה",ex:"Two distinct styles."},{d:3,w:"essential",m:"חיוני",ex:"Rest is essential."},{d:3,w:"inevitable",m:"בלתי נמנע",ex:"Mistakes are inevitable."},{d:3,w:"obvious",m:"ברור / מובן מאליו",ex:"The answer is obvious."},{d:3,w:"previous",m:"קודם",ex:"The previous competition."},{d:3,w:"severe",m:"חמור",ex:"A severe injury."},{d:3,w:"valid",m:"תקף",ex:"A valid argument."},
-{d:3,w:"absorb",m:"לספוג",ex:"Muscles absorb nutrients."},{d:3,w:"accumulate",m:"לצבור",ex:"Accumulate experience."},{d:3,w:"decline",m:"ירידה / לסרב",ex:"Performance declined."},{d:3,w:"eliminate",m:"לבטל / למנוע",ex:"Eliminate errors."},{d:3,w:"enhance",m:"לשפר",ex:"Enhance your skills."},{d:3,w:"generate",m:"ליצור",ex:"Generate more power."},{d:3,w:"implement",m:"ליישם",ex:"Implement changes."},{d:3,w:"integrate",m:"לשלב",ex:"Integrate dance and apparatus."},{d:3,w:"participate",m:"להשתתף",ex:"Participate in competitions."},{d:3,w:"specify",m:"לפרט",ex:"Specify the details."},
-{d:3,w:"accompany",m:"ללוות",ex:"Music accompanies the routine."},{d:3,w:"accomplish",m:"להשיג",ex:"Accomplish your goals."},{d:3,w:"acknowledge",m:"להכיר ב",ex:"Acknowledge the effort."},{d:3,w:"assert",m:"לטעון",ex:"Assert your opinion."},{d:3,w:"colleague",m:"עמית",ex:"A talented colleague."},{d:3,w:"component",m:"מרכיב",ex:"A key component."},{d:3,w:"demonstrate",m:"להדגים",ex:"Demonstrate grace."},{d:3,w:"encounter",m:"להיתקל",ex:"She encountered a problem."},{d:3,w:"estimate",m:"להעריך / אומדן",ex:"Estimate the cost."},{d:3,w:"illustrate",m:"להמחיש",ex:"Illustrate the point."},
-
-// ═══ LEVEL 4 (100 words) ═══
-{d:4,w:"coordination",m:"קואורדינציה",ex:"Exceptional coordination."},{d:4,w:"criteria",m:"קריטריונים",ex:"Scoring criteria."},{d:4,w:"execution",m:"ביצוע",ex:"Flawless execution."},{d:4,w:"consumer",m:"צרכן",ex:"Consumer spending."},{d:4,w:"acknowledge",m:"להכיר / לאשר",ex:"Acknowledge the judges."},{d:4,w:"anticipate",m:"לצפות",ex:"Anticipate the music."},{d:4,w:"articulate",m:"ברור / לנסח",ex:"Articulate your goals."},{d:4,w:"attribute",m:"לייחס / תכונה",ex:"Attribute success to training."},{d:4,w:"collaborate",m:"לשתף פעולה",ex:"Collaborate with your coach."},{d:4,w:"compensate",m:"לפצות",ex:"Compensate for the error."},
-{d:4,w:"comprehensive",m:"מקיף",ex:"A comprehensive warm-up."},{d:4,w:"concurrent",m:"מקביל",ex:"Concurrent training."},{d:4,w:"controversy",m:"מחלוקת",ex:"Scoring controversy."},{d:4,w:"credibility",m:"אמינות",ex:"Judges' credibility."},{d:4,w:"deteriorate",m:"להידרדר",ex:"Performance deteriorated."},{d:4,w:"differentiate",m:"להבחין",ex:"Differentiate between styles."},{d:4,w:"disposition",m:"נטייה / אופי",ex:"A positive disposition."},{d:4,w:"elaborate",m:"לפרט / מפורט",ex:"Please elaborate."},{d:4,w:"equivalent",m:"שווה ערך",ex:"An equivalent score."},{d:4,w:"fluctuate",m:"לנוד / להשתנות",ex:"Scores fluctuate."},
-{d:4,w:"framework",m:"מסגרת",ex:"Scoring framework."},{d:4,w:"hypothesis",m:"השערה",ex:"Test the hypothesis."},{d:4,w:"implication",m:"השלכה",ex:"Training implications."},{d:4,w:"incorporate",m:"לשלב",ex:"Incorporate new elements."},{d:4,w:"inhibit",m:"לעכב",ex:"Fear inhibits performance."},{d:4,w:"manipulate",m:"לתפעל",ex:"Manipulate the apparatus."},{d:4,w:"maximize",m:"למקסם",ex:"Maximize your score."},{d:4,w:"minimize",m:"למזער",ex:"Minimize deductions."},{d:4,w:"negotiate",m:"לנהל מו\"מ",ex:"Negotiate the price."},{d:4,w:"objective",m:"מטרה / אובייקטיבי",ex:"Clear objectives."},
-{d:4,w:"perceive",m:"לתפוס",ex:"How judges perceive artistry."},{d:4,w:"predominantly",m:"בעיקר",ex:"Predominantly female sport."},{d:4,w:"preliminary",m:"ראשוני",ex:"Preliminary round."},{d:4,w:"prospect",m:"סיכוי / פוטנציאל",ex:"A promising prospect."},{d:4,w:"rigid",m:"נוקשה",ex:"Rigid scoring system."},{d:4,w:"simulate",m:"לדמות",ex:"Simulate competition."},{d:4,w:"subsequent",m:"עוקב",ex:"Subsequent rounds."},{d:4,w:"surplus",m:"עודף",ex:"A surplus of energy."},{d:4,w:"transmit",m:"להעביר / לשדר",ex:"Transmit emotion."},{d:4,w:"underlying",m:"בסיסי / שמתחת",ex:"Underlying issues."},
-{d:4,w:"accommodate",m:"להתאים",ex:"Accommodate the change."},{d:4,w:"accumulation",m:"הצטברות",ex:"Difficulty accumulation."},{d:4,w:"ambiguous",m:"דו-משמעי",ex:"An ambiguous rule."},{d:4,w:"apparatus",m:"מכשיר",ex:"Five apparatus in RG."},{d:4,w:"coherent",m:"קוהרנטי",ex:"A coherent routine."},{d:4,w:"complement",m:"להשלים",ex:"Dance complements gymnastics."},{d:4,w:"constraint",m:"מגבלה",ex:"Time constraints."},{d:4,w:"controversial",m:"שנוי במחלוקת",ex:"A controversial decision."},{d:4,w:"deviation",m:"סטייה",ex:"Deviation from the norm."},{d:4,w:"discrimination",m:"אפליה / הבחנה",ex:"Price discrimination."},
-{d:4,w:"displacement",m:"עקירה",ex:"Market displacement."},{d:4,w:"disproportionate",m:"לא פרופורציונלי",ex:"Disproportionate penalty."},{d:4,w:"empirical",m:"אמפירי",ex:"Empirical evidence."},{d:4,w:"exploitation",m:"ניצול",ex:"Resource exploitation."},{d:4,w:"facilitate",m:"להקל",ex:"Facilitate learning."},{d:4,w:"infrastructure",m:"תשתית",ex:"Sports infrastructure."},{d:4,w:"inevitable",m:"בלתי נמנע",ex:"Injuries are inevitable."},{d:4,w:"magnitude",m:"גודל / עוצמה",ex:"The magnitude of the event."},{d:4,w:"methodology",m:"מתודולוגיה",ex:"Training methodology."},{d:4,w:"paradigm",m:"פרדיגמה",ex:"A new paradigm."},
-{d:4,w:"phenomenon",m:"תופעה",ex:"A global phenomenon."},{d:4,w:"predominant",m:"שולט",ex:"The predominant trend."},{d:4,w:"preliminary",m:"ראשוני / מקדים",ex:"Preliminary results."},{d:4,w:"proposition",m:"הצעה",ex:"A business proposition."},{d:4,w:"rationale",m:"הנמקה",ex:"What's the rationale?"},{d:4,w:"reinforce",m:"לחזק",ex:"Reinforce good habits."},{d:4,w:"revelation",m:"חשיפה / גילוי",ex:"A surprising revelation."},{d:4,w:"scrutiny",m:"בדיקה קפדנית",ex:"Under scrutiny."},{d:4,w:"testimony",m:"עדות",ex:"Her testimony was key."},{d:4,w:"trajectory",m:"מסלול",ex:"Career trajectory."},
-{d:4,w:"aesthetic",m:"אסתטי",ex:"Aesthetic appeal."},{d:4,w:"autonomy",m:"אוטונומיה",ex:"Financial autonomy."},{d:4,w:"benchmark",m:"אמת מידה",ex:"Set a benchmark."},{d:4,w:"bureaucracy",m:"ביורוקרטיה",ex:"Reduce bureaucracy."},{d:4,w:"catalyst",m:"זרז",ex:"A catalyst for change."},{d:4,w:"demographic",m:"דמוגרפי",ex:"Demographic changes."},{d:4,w:"disposition",m:"נטייה / מזג",ex:"A calm disposition."},{d:4,w:"ecosystem",m:"מערכת אקולוגית",ex:"The retail ecosystem."},{d:4,w:"entrepreneur",m:"יזם",ex:"A young entrepreneur."},{d:4,w:"fiscal",m:"פיסקלי",ex:"Fiscal policy."},
-
-// ═══ LEVEL 5 (100 words) ═══
-{d:5,w:"proprioceptive",m:"פרופריוספטיבי",ex:"Proprioceptive training."},{d:5,w:"unprecedented",m:"חסר תקדים",ex:"Unprecedented scores."},{d:5,w:"comprehensive",m:"מקיף",ex:"A comprehensive review."},{d:5,w:"dichotomy",m:"דיכוטומיה",ex:"A false dichotomy."},{d:5,w:"ubiquitous",m:"נמצא בכל מקום",ex:"Ubiquitous smartphones."},{d:5,w:"corroborate",m:"לאשש",ex:"Corroborate the findings."},{d:5,w:"exacerbate",m:"להחמיר",ex:"Stress exacerbates injury."},{d:5,w:"juxtapose",m:"להציב זה לצד זה",ex:"Juxtapose old and new."},{d:5,w:"meticulous",m:"קפדני",ex:"Meticulous preparation."},{d:5,w:"paradigm",m:"פרדיגמה",ex:"A paradigm shift."},
-{d:5,w:"quintessential",m:"מובהק / טיפוסי",ex:"The quintessential athlete."},{d:5,w:"ramification",m:"השלכה",ex:"Policy ramifications."},{d:5,w:"superfluous",m:"מיותר",ex:"Superfluous movements."},{d:5,w:"tangible",m:"מוחשי",ex:"Tangible results."},{d:5,w:"unequivocal",m:"חד-משמעי",ex:"Unequivocal success."},{d:5,w:"vindicate",m:"לזכות / להצדיק",ex:"The results vindicated her."},{d:5,w:"ambivalent",m:"אמביוולנטי",ex:"Ambivalent feelings."},{d:5,w:"benevolent",m:"נדיב / טוב לב",ex:"A benevolent coach."},{d:5,w:"clandestine",m:"חשאי",ex:"Clandestine doping."},{d:5,w:"disparate",m:"שונה מאוד",ex:"Disparate scoring systems."},
-{d:5,w:"efficacious",m:"יעיל",ex:"An efficacious method."},{d:5,w:"fastidious",m:"קפדן",ex:"A fastidious judge."},{d:5,w:"gregarious",m:"חברותי",ex:"A gregarious teammate."},{d:5,w:"heterogeneous",m:"הטרוגני",ex:"A heterogeneous group."},{d:5,w:"idiosyncratic",m:"ייחודי / אידיוסינקרטי",ex:"An idiosyncratic style."},{d:5,w:"jurisprudence",m:"משפטנות",ex:"Sports jurisprudence."},{d:5,w:"kinesthetic",m:"קינסתטי",ex:"Kinesthetic awareness."},{d:5,w:"lethargic",m:"רדום / עצלני",ex:"Feeling lethargic."},{d:5,w:"multifaceted",m:"רב-פנים",ex:"A multifaceted challenge."},{d:5,w:"nuanced",m:"מגוון / עדין",ex:"A nuanced performance."},
-{d:5,w:"obsolete",m:"מיושן",ex:"Obsolete retail models."},{d:5,w:"pragmatic",m:"פרגמטי",ex:"A pragmatic approach."},{d:5,w:"reconcile",m:"ליישב",ex:"Reconcile differences."},{d:5,w:"scrutinize",m:"לבחון בקפידה",ex:"Scrutinize every detail."},{d:5,w:"transcend",m:"לחרוג / לעלות מעל",ex:"Transcend limitations."},{d:5,w:"undermine",m:"לערער",ex:"Don't undermine confidence."},{d:5,w:"volatile",m:"תנודתי",ex:"A volatile market."},{d:5,w:"watershed",m:"מפנה",ex:"A watershed moment."},{d:5,w:"axiom",m:"אקסיומה",ex:"A fundamental axiom."},{d:5,w:"bifurcate",m:"לפצל",ex:"The path bifurcates."},
-{d:5,w:"concomitant",m:"נלווה",ex:"Concomitant benefits."},{d:5,w:"delineate",m:"לתאר / לתחום",ex:"Delineate the boundaries."},{d:5,w:"ephemeral",m:"חולף / זמני",ex:"Ephemeral trends."},{d:5,w:"extrapolate",m:"להקיש",ex:"Extrapolate from data."},{d:5,w:"formidable",m:"אדיר / מרשים",ex:"A formidable opponent."},{d:5,w:"germane",m:"רלוונטי",ex:"A germane observation."},{d:5,w:"hegemony",m:"הגמוניה",ex:"Cultural hegemony."},{d:5,w:"impetus",m:"דחף / תנופה",ex:"An impetus for change."},{d:5,w:"laudable",m:"ראוי לשבח",ex:"A laudable effort."},{d:5,w:"mitigate",m:"למתן",ex:"Mitigate the damage."},
-{d:5,w:"nomenclature",m:"מינוח",ex:"Gymnastics nomenclature."},{d:5,w:"ostensible",m:"לכאורה",ex:"The ostensible reason."},{d:5,w:"pedagogy",m:"פדגוגיה",ex:"Coaching pedagogy."},{d:5,w:"recalcitrant",m:"סרבני",ex:"A recalcitrant athlete."},{d:5,w:"salient",m:"בולט",ex:"The salient features."},{d:5,w:"tenuous",m:"רופף / חלש",ex:"A tenuous connection."},{d:5,w:"vicarious",m:"עקיף / דרך אחרים",ex:"Vicarious experience."},{d:5,w:"antithetical",m:"מנוגד",ex:"Antithetical approaches."},{d:5,w:"confluence",m:"מפגש / התכנסות",ex:"A confluence of factors."},{d:5,w:"disseminate",m:"להפיץ",ex:"Disseminate information."},
-{d:5,w:"endemic",m:"אנדמי",ex:"Endemic corruption."},{d:5,w:"fortuitous",m:"מקרי",ex:"A fortuitous discovery."},{d:5,w:"implicit",m:"מרומז",ex:"An implicit message."},{d:5,w:"juxtaposition",m:"הצבה זה לצד זה",ex:"An interesting juxtaposition."},{d:5,w:"lucrative",m:"רווחי",ex:"A lucrative deal."},{d:5,w:"nefarious",m:"מרושע",ex:"Nefarious activities."},{d:5,w:"pernicious",m:"מזיק",ex:"A pernicious effect."},{d:5,w:"quintessence",m:"מהות",ex:"The quintessence of grace."},{d:5,w:"reverberate",m:"להדהד",ex:"The impact reverberates."},{d:5,w:"succinct",m:"תמציתי",ex:"A succinct summary."},
-{d:5,w:"amalgamate",m:"למזג",ex:"Amalgamate styles."},{d:5,w:"circumvent",m:"לעקוף",ex:"Circumvent the rules."},{d:5,w:"deleterious",m:"מזיק",ex:"Deleterious effects."},{d:5,w:"elucidate",m:"להבהיר",ex:"Elucidate the scoring."},{d:5,w:"inextricable",m:"בלתי ניתן להפרדה",ex:"An inextricable link."},{d:5,w:"proliferation",m:"התרבות / ריבוי",ex:"Proliferation of e-commerce."},{d:5,w:"substantiate",m:"לבסס",ex:"Substantiate the claim."},{d:5,w:"unilateral",m:"חד-צדדי",ex:"A unilateral decision."},{d:5,w:"idiosyncrasy",m:"ייחודיות",ex:"A cultural idiosyncrasy."},{d:5,w:"predilection",m:"נטייה / העדפה",ex:"A predilection for risk."},
-// ── 50 NEW LEVEL 1 WORDS ──
-{d:1,w:"towel",m:"מגבת",ex:"Bring a towel to the gym."},{d:1,w:"bottle",m:"בקבוק",ex:"Fill your water bottle."},{d:1,w:"mirror",m:"מראה",ex:"Check the mirror."},{d:1,w:"floor",m:"רצפה",ex:"Sit on the floor."},{d:1,w:"step",m:"צעד / מדרגה",ex:"One step at a time."},{d:1,w:"push",m:"לדחוף",ex:"Push the door open."},{d:1,w:"pull",m:"למשוך",ex:"Pull the handle."},{d:1,w:"throw",m:"לזרוק",ex:"Throw the ball high."},{d:1,w:"catch",m:"לתפוס",ex:"Catch the ball."},{d:1,w:"climb",m:"לטפס",ex:"Climb the stairs."},
-{d:1,w:"shake",m:"לנער / לחיצת יד",ex:"Shake hands."},{d:1,w:"pack",m:"לארוז",ex:"Pack your suitcase."},{d:1,w:"key",m:"מפתח",ex:"Don't forget your key."},{d:1,w:"map",m:"מפה",ex:"Look at the map."},{d:1,w:"seat",m:"מושב",ex:"Take a seat."},{d:1,w:"quiet",m:"שקט",ex:"Please be quiet."},{d:1,w:"loud",m:"רועש",ex:"The music is loud."},{d:1,w:"full",m:"מלא",ex:"The class is full."},{d:1,w:"empty",m:"ריק",ex:"The bottle is empty."},{d:1,w:"wide",m:"רחב",ex:"A wide smile."},
-{d:1,w:"narrow",m:"צר",ex:"A narrow path."},{d:1,w:"deep",m:"עמוק",ex:"The pool is deep."},{d:1,w:"flat",m:"שטוח",ex:"The floor is flat."},{d:1,w:"sharp",m:"חד",ex:"A sharp knife."},{d:1,w:"slow",m:"איטי",ex:"Walk slow."},{d:1,w:"quick",m:"מהיר",ex:"A quick snack."},{d:1,w:"sick",m:"חולה",ex:"She feels sick."},{d:1,w:"hurt",m:"לכאוב / לפגוע",ex:"My leg hurts."},{d:1,w:"fix",m:"לתקן",ex:"Fix the problem."},{d:1,w:"break",m:"לשבור / הפסקה",ex:"Take a break."},
-{d:1,w:"taste",m:"טעם / לטעום",ex:"Taste this food."},{d:1,w:"smell",m:"ריח / להריח",ex:"It smells good."},{d:1,w:"touch",m:"לגעת / מגע",ex:"Don't touch that."},{d:1,w:"share",m:"לשתף / לחלוק",ex:"Share with your friend."},{d:1,w:"spend",m:"לבזבז / להוציא",ex:"Don't spend too much."},{d:1,w:"save",m:"לחסוך / לשמור",ex:"Save your money."},{d:1,w:"count",m:"לספור",ex:"Count to ten."},{d:1,w:"check",m:"לבדוק",ex:"Check the receipt."},{d:1,w:"sign",m:"שלט / לחתום",ex:"Sign here please."},{d:1,w:"guess",m:"לנחש",ex:"Guess the answer."},
-{d:1,w:"wish",m:"משאלה / לאחל",ex:"I wish you luck."},{d:1,w:"hope",m:"תקווה / לקוות",ex:"I hope so."},{d:1,w:"cross",m:"לחצות",ex:"Cross the street carefully."},{d:1,w:"follow",m:"לעקוב / ללכת אחרי",ex:"Follow me."},{d:1,w:"turn",m:"לפנות / תור",ex:"Turn left here."},{d:1,w:"stand",m:"לעמוד",ex:"Please stand up."},{d:1,w:"drop",m:"להפיל / טיפה",ex:"Don't drop it."},{d:1,w:"pick",m:"לבחור / להרים",ex:"Pick one color."},{d:1,w:"pass",m:"להעביר / לעבור",ex:"Pass me the salt."},{d:1,w:"match",m:"להתאים / משחק",ex:"These shoes match."},
-// ── 50 NEW LEVEL 2 WORDS ──
-{d:2,w:"adjust",m:"להתאים / לכוונן",ex:"Adjust the settings."},{d:2,w:"afford",m:"להרשות לעצמו",ex:"I can't afford it."},{d:2,w:"announce",m:"להכריז",ex:"Announce the results."},{d:2,w:"apply",m:"להגיש מועמדות / ליישם",ex:"Apply for the job."},{d:2,w:"arrange",m:"לסדר",ex:"Arrange the meeting."},{d:2,w:"assume",m:"להניח",ex:"Don't assume anything."},{d:2,w:"attach",m:"לצרף",ex:"Attach the file."},{d:2,w:"attract",m:"למשוך",ex:"Attract customers."},{d:2,w:"avoid",m:"להימנע",ex:"Avoid sugar."},{d:2,w:"behave",m:"להתנהג",ex:"Behave properly."},
-{d:2,w:"belong",m:"להשתייך",ex:"This belongs to me."},{d:2,w:"benefit",m:"תועלת / להרוויח",ex:"A great benefit."},{d:2,w:"blame",m:"להאשים",ex:"Don't blame others."},{d:2,w:"borrow",m:"לשאול",ex:"Can I borrow this?"},{d:2,w:"cancel",m:"לבטל",ex:"Cancel the order."},{d:2,w:"complain",m:"להתלונן",ex:"Don't complain."},{d:2,w:"confirm",m:"לאשר",ex:"Confirm the booking."},{d:2,w:"connect",m:"לחבר",ex:"Connect to WiFi."},{d:2,w:"convince",m:"לשכנע",ex:"Convince the coach."},{d:2,w:"create",m:"ליצור",ex:"Create a routine."},
-{d:2,w:"damage",m:"נזק / לפגוע",ex:"Avoid muscle damage."},{d:2,w:"decision",m:"החלטה",ex:"Make a decision."},{d:2,w:"depend",m:"לסמוך / תלוי ב",ex:"It depends on you."},{d:2,w:"describe",m:"לתאר",ex:"Describe the item."},{d:2,w:"destroy",m:"להרוס",ex:"Don't destroy it."},{d:2,w:"disappoint",m:"לאכזב",ex:"Don't disappoint her."},{d:2,w:"discover",m:"לגלות",ex:"Discover new stores."},{d:2,w:"doubt",m:"ספק / לפקפק",ex:"I doubt it."},{d:2,w:"earn",m:"להרוויח",ex:"Earn respect."},{d:2,w:"encourage",m:"לעודד",ex:"Encourage each other."},
-{d:2,w:"enormous",m:"ענק",ex:"An enormous mall."},{d:2,w:"entire",m:"שלם / כולו",ex:"The entire team."},{d:2,w:"equipment",m:"ציוד",ex:"Gym equipment."},{d:2,w:"essential",m:"חיוני",ex:"Water is essential."},{d:2,w:"estimate",m:"להעריך / אומדן",ex:"Estimate the cost."},{d:2,w:"exact",m:"מדויק",ex:"The exact time."},{d:2,w:"expect",m:"לצפות",ex:"I expect results."},{d:2,w:"familiar",m:"מוכר",ex:"A familiar face."},{d:2,w:"feature",m:"תכונה / מאפיין",ex:"A key feature."},{d:2,w:"fortunate",m:"בר מזל",ex:"She is fortunate."},
-{d:2,w:"gather",m:"לאסוף",ex:"Gather your things."},{d:2,w:"general",m:"כללי",ex:"In general, yes."},{d:2,w:"guarantee",m:"אחריות / ערבות",ex:"A quality guarantee."},{d:2,w:"ignore",m:"להתעלם",ex:"Don't ignore the pain."},{d:2,w:"inspire",m:"להשרות השראה",ex:"She inspires me."},{d:2,w:"lack",m:"חוסר / חסר",ex:"A lack of sleep."},{d:2,w:"limit",m:"גבול / להגביל",ex:"Know your limits."},{d:2,w:"mention",m:"להזכיר",ex:"She mentioned it."},{d:2,w:"occur",m:"להתרחש",ex:"Injuries can occur."},{d:2,w:"replace",m:"להחליף",ex:"Replace the old shoes."},
-// ── 50 NEW LEVEL 3 WORDS ──
-{d:3,w:"advocate",m:"לתמוך / תומך",ex:"Advocate for change."},{d:3,w:"allocate",m:"להקצות",ex:"Allocate training time."},{d:3,w:"analogy",m:"אנלוגיה",ex:"A useful analogy."},{d:3,w:"anticipate",m:"לצפות מראש",ex:"Anticipate the music."},{d:3,w:"assess",m:"להעריך / לבחון",ex:"Assess the damage."},{d:3,w:"attribute",m:"לייחס / תכונה",ex:"Attribute success to effort."},{d:3,w:"capacity",m:"קיבולת / כושר",ex:"At full capacity."},{d:3,w:"clarify",m:"להבהיר",ex:"Please clarify."},{d:3,w:"compensate",m:"לפצות",ex:"Compensate for weaknesses."},{d:3,w:"compile",m:"לאסוף / להרכיב",ex:"Compile the results."},
-{d:3,w:"comprehensive",m:"מקיף",ex:"A comprehensive review."},{d:3,w:"conceive",m:"לתפוס / להגות",ex:"Conceive a new plan."},{d:3,w:"conflict",m:"עימות / סתירה",ex:"A schedule conflict."},{d:3,w:"conform",m:"להתאים לנורמות",ex:"Conform to the rules."},{d:3,w:"controversy",m:"מחלוקת",ex:"A scoring controversy."},{d:3,w:"correspond",m:"להתכתב / להתאים",ex:"Results correspond to effort."},{d:3,w:"criteria",m:"קריטריונים",ex:"Meet the criteria."},{d:3,w:"crucial",m:"קריטי / חיוני",ex:"A crucial moment."},{d:3,w:"data",m:"נתונים",ex:"Analyze the data."},{d:3,w:"debate",m:"דיון / ויכוח",ex:"A heated debate."},
-{d:3,w:"derive",m:"להפיק / לגזור",ex:"Derive benefit from practice."},{d:3,w:"dimension",m:"מימד",ex:"A new dimension."},{d:3,w:"dispose",m:"לפנות / להיפטר",ex:"Dispose of waste properly."},{d:3,w:"draft",m:"טיוטה",ex:"The first draft."},{d:3,w:"duration",m:"משך זמן",ex:"The duration of the routine."},{d:3,w:"dynamic",m:"דינמי",ex:"A dynamic routine."},{d:3,w:"emerge",m:"לצוץ / לעלות",ex:"New trends emerge."},{d:3,w:"enable",m:"לאפשר",ex:"Technology enables progress."},{d:3,w:"exceed",m:"לחרוג / לעלות על",ex:"Exceed expectations."},{d:3,w:"exhibit",m:"להציג / לגלות",ex:"Exhibit good sportsmanship."},
-{d:3,w:"expand",m:"להרחיב",ex:"Expand your vocabulary."},{d:3,w:"exploit",m:"לנצל / לממש",ex:"Exploit opportunities."},{d:3,w:"expose",m:"לחשוף",ex:"Expose to new techniques."},{d:3,w:"extract",m:"לחלץ / לשלוף",ex:"Extract key information."},{d:3,w:"format",m:"פורמט / מתכונת",ex:"Competition format."},{d:3,w:"foundation",m:"יסוד / בסיס",ex:"Build a strong foundation."},{d:3,w:"function",m:"תפקוד / לתפקד",ex:"A vital function."},{d:3,w:"grant",m:"מענק / להעניק",ex:"Grant permission."},{d:3,w:"guideline",m:"הנחיה",ex:"Follow the guidelines."},{d:3,w:"hierarchy",m:"היררכיה",ex:"Scoring hierarchy."},
-{d:3,w:"identify",m:"לזהות",ex:"Identify weaknesses."},{d:3,w:"impact",m:"השפעה / פגיעה",ex:"A positive impact."},{d:3,w:"impose",m:"להטיל / לכפות",ex:"Impose a penalty."},{d:3,w:"incentive",m:"תמריץ",ex:"A strong incentive."},{d:3,w:"incorporate",m:"לשלב",ex:"Incorporate new moves."},{d:3,w:"indicate",m:"לציין / להצביע",ex:"Results indicate improvement."},{d:3,w:"initial",m:"ראשוני",ex:"The initial assessment."},{d:3,w:"insight",m:"תובנה",ex:"A valuable insight."},{d:3,w:"instance",m:"מקרה / דוגמה",ex:"For instance..."},{d:3,w:"interval",m:"מרווח",ex:"Rest intervals."},
-// ── 50 NEW LEVEL 4 WORDS ──
-{d:4,w:"aggregate",m:"מצטבר / לצבור",ex:"Aggregate scores."},{d:4,w:"allocate",m:"להקצות",ex:"Allocate resources wisely."},{d:4,w:"analogy",m:"אנלוגיה",ex:"Draw an analogy."},{d:4,w:"arbitrary",m:"שרירותי",ex:"An arbitrary decision."},{d:4,w:"augment",m:"לחזק / להוסיף",ex:"Augment training intensity."},{d:4,w:"bias",m:"הטיה",ex:"Judging bias."},{d:4,w:"bureaucratic",m:"ביורוקרטי",ex:"Bureaucratic procedures."},{d:4,w:"chronological",m:"כרונולוגי",ex:"Chronological order."},{d:4,w:"cohesion",m:"לכידות",ex:"Team cohesion."},{d:4,w:"compatible",m:"תואם",ex:"Compatible training styles."},
-{d:4,w:"compile",m:"לאסוף / לערוך",ex:"Compile statistics."},{d:4,w:"compulsory",m:"חובה",ex:"Compulsory elements."},{d:4,w:"conceive",m:"לתפוס / להגות",ex:"Hard to conceive."},{d:4,w:"configuration",m:"תצורה",ex:"A new configuration."},{d:4,w:"consolidate",m:"לגבש / לחזק",ex:"Consolidate gains."},{d:4,w:"contemplate",m:"להתבונן / לשקול",ex:"Contemplate retirement."},{d:4,w:"contradict",m:"לסתור",ex:"Contradict the evidence."},{d:4,w:"conventional",m:"מקובל",ex:"Conventional training methods."},{d:4,w:"correlate",m:"לתאם / להתאים",ex:"Results correlate with effort."},{d:4,w:"criterion",m:"קריטריון",ex:"A strict criterion."},
-{d:4,w:"cumulative",m:"מצטבר",ex:"Cumulative scoring."},{d:4,w:"curtail",m:"לקצר / לצמצם",ex:"Curtail unnecessary deductions."},{d:4,w:"decisive",m:"מכריע",ex:"A decisive moment."},{d:4,w:"deficiency",m:"חוסר / ליקוי",ex:"A nutritional deficiency."},{d:4,w:"depreciate",m:"לפחת בערך",ex:"Currency depreciates."},{d:4,w:"detrimental",m:"מזיק",ex:"Detrimental to health."},{d:4,w:"deviate",m:"לסטות",ex:"Deviate from the plan."},{d:4,w:"discourse",m:"שיח",ex:"Academic discourse."},{d:4,w:"disparity",m:"פער",ex:"Score disparity."},{d:4,w:"disposition",m:"נטייה / מזג",ex:"A competitive disposition."},
-{d:4,w:"distort",m:"לעוות",ex:"Distort the facts."},{d:4,w:"diverse",m:"מגוון",ex:"Diverse training methods."},{d:4,w:"doctrine",m:"דוקטרינה / תורה",ex:"Training doctrine."},{d:4,w:"dominant",m:"דומיננטי",ex:"The dominant competitor."},{d:4,w:"duration",m:"משך",ex:"A longer duration."},{d:4,w:"elicit",m:"לגרום / לעורר",ex:"Elicit a response."},{d:4,w:"embed",m:"להטמיע / לשבץ",ex:"Embed skills through repetition."},{d:4,w:"encompass",m:"להקיף / לכלול",ex:"Encompass all elements."},{d:4,w:"endorse",m:"לתמוך / לאמץ",ex:"Endorse a brand."},{d:4,w:"enlighten",m:"להאיר / להנחות",ex:"Enlighten the audience."},
-{d:4,w:"erratic",m:"לא יציב",ex:"Erratic performance."},{d:4,w:"exclusive",m:"בלעדי",ex:"An exclusive deal."},{d:4,w:"exempt",m:"פטור",ex:"Exempt from the rule."},{d:4,w:"exhibit",m:"להציג",ex:"Exhibit creativity."},{d:4,w:"explicit",m:"מפורש",ex:"Explicit instructions."},{d:4,w:"focal",m:"מוקדי",ex:"The focal point."},{d:4,w:"foremost",m:"ראשון במעלה",ex:"First and foremost."},{d:4,w:"forthcoming",m:"עתידי / קרוב",ex:"A forthcoming competition."},{d:4,w:"fragment",m:"שבר / חלק",ex:"A fragment of the routine."},{d:4,w:"friction",m:"חיכוך",ex:"Reduce friction."},
-// ── 50 NEW LEVEL 5 WORDS ──
-{d:5,w:"aberration",m:"חריגה / סטייה",ex:"A statistical aberration."},{d:5,w:"accentuate",m:"להדגיש",ex:"Accentuate the positive."},{d:5,w:"acquiesce",m:"להיכנע / להסכים",ex:"Acquiesce to the ruling."},{d:5,w:"adjudicate",m:"לשפוט / להכריע",ex:"Adjudicate the dispute."},{d:5,w:"admonish",m:"לנזוף / להזהיר",ex:"The coach admonished her."},{d:5,w:"alleviate",m:"להקל / לשכך",ex:"Alleviate the pain."},{d:5,w:"analogous",m:"אנלוגי / דומה",ex:"An analogous situation."},{d:5,w:"anomaly",m:"אנומליה / חריגה",ex:"A scoring anomaly."},{d:5,w:"apprehension",m:"חשש / תפיסה",ex:"Pre-competition apprehension."},{d:5,w:"arbitrary",m:"שרירותי",ex:"An arbitrary deduction."},
-{d:5,w:"arduous",m:"קשה / מפרך",ex:"An arduous training schedule."},{d:5,w:"ascertain",m:"לברר / לוודא",ex:"Ascertain the facts."},{d:5,w:"assimilate",m:"להטמיע / לקלוט",ex:"Assimilate new techniques."},{d:5,w:"attenuate",m:"להחליש / להנמיך",ex:"Attenuate the risk."},{d:5,w:"belligerent",m:"לוחמני",ex:"A belligerent competitor."},{d:5,w:"candid",m:"כנה / גלוי",ex:"A candid assessment."},{d:5,w:"capitulate",m:"להיכנע",ex:"Refuse to capitulate."},{d:5,w:"coalesce",m:"להתמזג / להתלכד",ex:"Elements coalesce beautifully."},{d:5,w:"commensurate",m:"תואם / פרופורציונלי",ex:"Rewards commensurate with effort."},{d:5,w:"compendium",m:"קומפנדיום / תקציר",ex:"A rules compendium."},
-{d:5,w:"concur",m:"להסכים",ex:"The judges concurred."},{d:5,w:"contentious",m:"שנוי במחלוקת",ex:"A contentious ruling."},{d:5,w:"corroborate",m:"לאשש",ex:"Evidence corroborates the theory."},{d:5,w:"debilitate",m:"להחליש",ex:"A debilitating injury."},{d:5,w:"demarcate",m:"לתחום / להגדיר גבולות",ex:"Demarcate the boundaries."},{d:5,w:"denigrate",m:"להשמיץ / לזלזל",ex:"Don't denigrate opponents."},{d:5,w:"deplete",m:"למצות / לרוקן",ex:"Deplete energy reserves."},{d:5,w:"digress",m:"לסטות מהנושא",ex:"I digress."},{d:5,w:"discrepancy",m:"אי-התאמה / פער",ex:"A scoring discrepancy."},{d:5,w:"disposition",m:"נטייה / מזג",ex:"A resilient disposition."},
-{d:5,w:"dogmatic",m:"דוגמטי",ex:"A dogmatic approach."},{d:5,w:"eclectic",m:"אקלקטי / מגוון",ex:"An eclectic style."},{d:5,w:"efficacy",m:"יעילות",ex:"Proven efficacy."},{d:5,w:"elusive",m:"חמקמק",ex:"An elusive victory."},{d:5,w:"equitable",m:"הוגן",ex:"An equitable system."},{d:5,w:"exonerate",m:"לזכות / לנקות מאשמה",ex:"Exonerated by evidence."},{d:5,w:"expedite",m:"לזרז / להאיץ",ex:"Expedite the process."},{d:5,w:"fallacious",m:"מוטעה / כוזב",ex:"A fallacious argument."},{d:5,w:"flagrant",m:"בוטה",ex:"A flagrant violation."},{d:5,w:"galvanize",m:"להלהיב / לגרות",ex:"Galvanize the team."},
-{d:5,w:"gratuitous",m:"חינמי / מיותר",ex:"Gratuitous deductions."},{d:5,w:"homogeneous",m:"הומוגני / אחיד",ex:"A homogeneous group."},{d:5,w:"hypothetical",m:"היפותטי",ex:"A hypothetical scenario."},{d:5,w:"imminent",m:"מתקרב / עומד לקרות",ex:"An imminent decision."},{d:5,w:"impeccable",m:"ללא דופי",ex:"Impeccable technique."},{d:5,w:"inadvertent",m:"בלתי מכוון",ex:"An inadvertent error."},{d:5,w:"innate",m:"מולד / טבעי",ex:"Innate talent."},{d:5,w:"invoke",m:"להפעיל / לעורר",ex:"Invoke the rule."},{d:5,w:"irrevocable",m:"בלתי הפיך",ex:"An irrevocable decision."},{d:5,w:"meritorious",m:"מצטיין / ראוי",ex:"A meritorious performance."},
+/* ═══ LEVEL 1 — BEGINNER (kept ~15%, mostly new) ═══ */
+/* kept from old */
+{d:1,w:"stretch",m:"למתוח",ex:"Stretch before exercise."},{d:1,w:"size",m:"מידה",ex:"What size do you wear?"},{d:1,w:"water",m:"מים",ex:"Drink more water."},{d:1,w:"food",m:"אוכל",ex:"The food is delicious."},{d:1,w:"happy",m:"שמח",ex:"I'm happy today."},{d:1,w:"tired",m:"עייף",ex:"I'm so tired."},{d:1,w:"music",m:"מוזיקה",ex:"I love this music."},{d:1,w:"dance",m:"לרקוד",ex:"She loves to dance."},
+/* new L1 — basic everyday */
+{d:1,w:"hello",m:"שלום",ex:"Hello! How are you?"},{d:1,w:"goodbye",m:"להתראות",ex:"Goodbye, see you tomorrow."},{d:1,w:"please",m:"בבקשה",ex:"Can you help me, please?"},{d:1,w:"thanks",m:"תודה",ex:"Thanks for your help!"},{d:1,w:"sorry",m:"מצטערת",ex:"Sorry, I'm late."},{d:1,w:"yes",m:"כן",ex:"Yes, I agree."},{d:1,w:"no",m:"לא",ex:"No, thank you."},{d:1,w:"name",m:"שם",ex:"My name is Lika."},{d:1,w:"friend",m:"חבר/ה",ex:"She is my best friend."},{d:1,w:"family",m:"משפחה",ex:"I love my family."},
+{d:1,w:"mother",m:"אמא",ex:"My mother is a teacher."},{d:1,w:"father",m:"אבא",ex:"My father works at home."},{d:1,w:"sister",m:"אחות",ex:"I have one sister."},{d:1,w:"brother",m:"אח",ex:"My brother is older."},{d:1,w:"home",m:"בית",ex:"I'm going home."},{d:1,w:"house",m:"בית",ex:"This is a big house."},{d:1,w:"room",m:"חדר",ex:"My room is small."},{d:1,w:"door",m:"דלת",ex:"Open the door, please."},{d:1,w:"window",m:"חלון",ex:"Close the window."},{d:1,w:"bed",m:"מיטה",ex:"The bed is very soft."},
+{d:1,w:"day",m:"יום",ex:"Have a nice day!"},{d:1,w:"night",m:"לילה",ex:"Good night!"},{d:1,w:"morning",m:"בוקר",ex:"Good morning!"},{d:1,w:"evening",m:"ערב",ex:"Good evening!"},{d:1,w:"today",m:"היום",ex:"Today is Sunday."},{d:1,w:"tomorrow",m:"מחר",ex:"See you tomorrow."},{d:1,w:"yesterday",m:"אתמול",ex:"Yesterday was fun."},{d:1,w:"now",m:"עכשיו",ex:"I'm busy now."},{d:1,w:"week",m:"שבוע",ex:"This week is busy."},{d:1,w:"month",m:"חודש",ex:"Next month is July."},
+{d:1,w:"year",m:"שנה",ex:"Last year was hard."},{d:1,w:"time",m:"זמן",ex:"What time is it?"},{d:1,w:"hour",m:"שעה",ex:"One hour please."},{d:1,w:"minute",m:"דקה",ex:"Just one minute."},{d:1,w:"red",m:"אדום",ex:"I like the red one."},{d:1,w:"blue",m:"כחול",ex:"The sky is blue."},{d:1,w:"green",m:"ירוק",ex:"Green is my favorite."},{d:1,w:"yellow",m:"צהוב",ex:"A yellow flower."},{d:1,w:"black",m:"שחור",ex:"Black shoes are classic."},{d:1,w:"white",m:"לבן",ex:"A white dress."},
+{d:1,w:"pink",m:"ורוד",ex:"Pink is so pretty."},{d:1,w:"big",m:"גדול",ex:"This bag is big."},{d:1,w:"small",m:"קטן",ex:"A small coffee, please."},{d:1,w:"good",m:"טוב",ex:"That's a good idea."},{d:1,w:"bad",m:"רע",ex:"The food was bad."},{d:1,w:"new",m:"חדש",ex:"I have a new phone."},{d:1,w:"old",m:"ישן / זקן",ex:"My phone is old."},{d:1,w:"hot",m:"חם",ex:"It's hot today."},{d:1,w:"cold",m:"קר",ex:"The water is cold."},{d:1,w:"nice",m:"נחמד",ex:"You're so nice."},
+{d:1,w:"man",m:"גבר",ex:"That man is tall."},{d:1,w:"woman",m:"אישה",ex:"She is a strong woman."},{d:1,w:"boy",m:"ילד",ex:"The boy is running."},{d:1,w:"girl",m:"ילדה",ex:"That girl is smart."},{d:1,w:"baby",m:"תינוק",ex:"The baby is sleeping."},{d:1,w:"car",m:"מכונית",ex:"This is my car."},{d:1,w:"bus",m:"אוטובוס",ex:"I take the bus."},{d:1,w:"school",m:"בית ספר",ex:"School starts at 8."},{d:1,w:"work",m:"עבודה / לעבוד",ex:"I go to work."},{d:1,w:"book",m:"ספר",ex:"This book is great."},
+{d:1,w:"pen",m:"עט",ex:"Can I borrow a pen?"},{d:1,w:"phone",m:"טלפון",ex:"My phone is dead."},{d:1,w:"bag",m:"תיק",ex:"Where is my bag?"},{d:1,w:"hand",m:"יד",ex:"Wash your hands."},{d:1,w:"foot",m:"רגל (כף רגל)",ex:"My foot hurts."},{d:1,w:"head",m:"ראש",ex:"My head hurts."},{d:1,w:"eye",m:"עין",ex:"Close your eyes."},{d:1,w:"hair",m:"שיער",ex:"She has long hair."},{d:1,w:"face",m:"פנים",ex:"Wash your face."},{d:1,w:"mouth",m:"פה",ex:"Open your mouth."},
+{d:1,w:"eat",m:"לאכול",ex:"Let's eat now."},{d:1,w:"drink",m:"לשתות",ex:"Drink some water."},{d:1,w:"sleep",m:"לישון",ex:"I need to sleep."},{d:1,w:"see",m:"לראות",ex:"I can see you."},{d:1,w:"hear",m:"לשמוע",ex:"I can hear music."},{d:1,w:"go",m:"ללכת",ex:"Let's go!"},{d:1,w:"come",m:"לבוא",ex:"Come here, please."},{d:1,w:"sit",m:"לשבת",ex:"Please sit down."},{d:1,w:"stand",m:"לעמוד",ex:"Please stand up."},{d:1,w:"walk",m:"ללכת",ex:"I walk to school."},
+{d:1,w:"run",m:"לרוץ",ex:"She runs fast."},{d:1,w:"jump",m:"לקפוץ",ex:"Don't jump on the bed."},{d:1,w:"swim",m:"לשחות",ex:"I can swim."},{d:1,w:"play",m:"לשחק",ex:"Let's play a game."},{d:1,w:"sing",m:"לשיר",ex:"She loves to sing."},{d:1,w:"read",m:"לקרוא",ex:"I read every night."},{d:1,w:"write",m:"לכתוב",ex:"Write your name here."},{d:1,w:"speak",m:"לדבר",ex:"Speak slowly, please."},{d:1,w:"listen",m:"להקשיב",ex:"Listen carefully."},{d:1,w:"watch",m:"לצפות",ex:"Watch the show."},
+{d:1,w:"love",m:"אהבה / לאהוב",ex:"I love you."},{d:1,w:"like",m:"לאהוב / לחבב",ex:"I like ice cream."},{d:1,w:"want",m:"לרצות",ex:"What do you want?"},{d:1,w:"need",m:"לזדקק / להזדקק",ex:"I need help."},{d:1,w:"have",m:"להחזיק / יש ל",ex:"I have a question."},{d:1,w:"open",m:"לפתוח / פתוח",ex:"Open the box."},{d:1,w:"close",m:"לסגור / סגור",ex:"Close the bag."},{d:1,w:"give",m:"לתת",ex:"Give me the book."},{d:1,w:"take",m:"לקחת",ex:"Take this with you."},{d:1,w:"buy",m:"לקנות",ex:"I want to buy this."},
+{d:1,w:"sell",m:"למכור",ex:"They sell flowers here."},{d:1,w:"shop",m:"חנות / לקנות",ex:"I love to shop."},{d:1,w:"shopping",m:"קניות",ex:"Let's go shopping!"},{d:1,w:"store",m:"חנות",ex:"The store is closed."},{d:1,w:"market",m:"שוק",ex:"The market is busy."},{d:1,w:"money",m:"כסף",ex:"How much money?"},{d:1,w:"shoe",m:"נעל",ex:"I need new shoes."},{d:1,w:"shirt",m:"חולצה",ex:"This shirt is nice."},{d:1,w:"dress",m:"שמלה",ex:"What a pretty dress!"},{d:1,w:"hat",m:"כובע",ex:"Wear a hat in the sun."},
+{d:1,w:"gym",m:"חדר כושר",ex:"I go to the gym."},{d:1,w:"ball",m:"כדור",ex:"Throw me the ball."},{d:1,w:"bread",m:"לחם",ex:"Please pass the bread."},{d:1,w:"milk",m:"חלב",ex:"I drink milk daily."},{d:1,w:"apple",m:"תפוח",ex:"An apple a day."},{d:1,w:"egg",m:"ביצה",ex:"I want one egg."},{d:1,w:"coffee",m:"קפה",ex:"Coffee, please."},{d:1,w:"tea",m:"תה",ex:"Tea or coffee?"},{d:1,w:"fish",m:"דג",ex:"I eat fish twice a week."},{d:1,w:"cheese",m:"גבינה",ex:"More cheese, please."},
+/* ═══ LEVEL 2 — PRE-ELEMENTARY (all new — between basic and elementary) ═══ */
+{d:2,w:"yesterday",m:"אתמול",ex:"Yesterday was busy."},{d:2,w:"tomorrow",m:"מחר",ex:"Tomorrow is my birthday."},{d:2,w:"already",m:"כבר",ex:"I've already eaten."},{d:2,w:"never",m:"אף פעם לא",ex:"I've never been there."},{d:2,w:"always",m:"תמיד",ex:"She is always late."},{d:2,w:"sometimes",m:"לפעמים",ex:"Sometimes I cook."},{d:2,w:"often",m:"לעיתים קרובות",ex:"We often meet here."},{d:2,w:"usually",m:"בדרך כלל",ex:"I usually wake up early."},{d:2,w:"again",m:"שוב",ex:"Can you say it again?"},{d:2,w:"together",m:"ביחד",ex:"Let's work together."},
+{d:2,w:"breakfast",m:"ארוחת בוקר",ex:"Breakfast is ready."},{d:2,w:"lunch",m:"ארוחת צהריים",ex:"Let's have lunch."},{d:2,w:"dinner",m:"ארוחת ערב",ex:"Dinner is at 7."},{d:2,w:"meal",m:"ארוחה",ex:"That was a great meal."},{d:2,w:"hungry",m:"רעב",ex:"I'm very hungry."},{d:2,w:"thirsty",m:"צמא",ex:"After training I'm thirsty."},{d:2,w:"delicious",m:"טעים",ex:"This food is delicious!"},{d:2,w:"sweet",m:"מתוק",ex:"The cake is too sweet."},{d:2,w:"spicy",m:"חריף",ex:"I love spicy food."},{d:2,w:"healthy",m:"בריא",ex:"Vegetables are healthy."},
+{d:2,w:"because",m:"כי / מפני ש",ex:"I'm tired because I trained."},{d:2,w:"but",m:"אבל",ex:"I want it but it's expensive."},{d:2,w:"also",m:"גם",ex:"I'm also coming."},{d:2,w:"only",m:"רק",ex:"Only one piece left."},{d:2,w:"every",m:"כל",ex:"Every day I practice."},{d:2,w:"many",m:"הרבה",ex:"Many people came."},{d:2,w:"much",m:"הרבה",ex:"How much is it?"},{d:2,w:"few",m:"מעט",ex:"Just a few minutes."},{d:2,w:"enough",m:"מספיק",ex:"That's enough water."},{d:2,w:"both",m:"שניהם / שתיהן",ex:"I like both colors."},
+{d:2,w:"weather",m:"מזג אוויר",ex:"Nice weather today!"},{d:2,w:"sunny",m:"שמשי",ex:"It's sunny outside."},{d:2,w:"rainy",m:"גשום",ex:"A rainy afternoon."},{d:2,w:"cloudy",m:"מעונן",ex:"The sky is cloudy."},{d:2,w:"snow",m:"שלג / להשליג",ex:"I love the snow."},{d:2,w:"wind",m:"רוח",ex:"Strong wind today."},{d:2,w:"warm",m:"חם נעים",ex:"A warm jacket."},{d:2,w:"cool",m:"קריר / מגניב",ex:"A cool evening."},{d:2,w:"hot",m:"חם",ex:"Drink cold water when it's hot."},{d:2,w:"cold",m:"קר",ex:"It's cold in here."},
+{d:2,w:"clothes",m:"בגדים",ex:"Buy new clothes."},{d:2,w:"jeans",m:"ג'ינס",ex:"These jeans fit well."},{d:2,w:"jacket",m:"מעיל / ג'קט",ex:"Wear a warm jacket."},{d:2,w:"skirt",m:"חצאית",ex:"A short skirt."},{d:2,w:"socks",m:"גרביים",ex:"Clean socks please."},{d:2,w:"sneakers",m:"נעלי ספורט",ex:"My sneakers are new."},{d:2,w:"belt",m:"חגורה",ex:"This belt is nice."},{d:2,w:"earrings",m:"עגילים",ex:"Pretty earrings!"},{d:2,w:"ring",m:"טבעת",ex:"A silver ring."},{d:2,w:"necklace",m:"שרשרת",ex:"A gold necklace."},
+{d:2,w:"airport",m:"שדה תעופה",ex:"We're at the airport."},{d:2,w:"taxi",m:"מונית",ex:"Let's take a taxi."},{d:2,w:"hotel",m:"מלון",ex:"This hotel is great."},{d:2,w:"room",m:"חדר",ex:"My hotel room is big."},{d:2,w:"key",m:"מפתח",ex:"Don't lose the key."},{d:2,w:"suitcase",m:"מזוודה",ex:"Pack your suitcase."},{d:2,w:"trip",m:"טיול / נסיעה",ex:"Have a nice trip!"},{d:2,w:"vacation",m:"חופשה",ex:"I need a vacation."},{d:2,w:"beach",m:"חוף",ex:"Let's go to the beach."},{d:2,w:"sea",m:"ים",ex:"Swimming in the sea."},
+{d:2,w:"easy",m:"קל",ex:"This test was easy."},{d:2,w:"hard",m:"קשה",ex:"This is hard work."},{d:2,w:"difficult",m:"קשה",ex:"It's difficult but possible."},{d:2,w:"important",m:"חשוב",ex:"This is very important."},{d:2,w:"interesting",m:"מעניין",ex:"An interesting book."},{d:2,w:"boring",m:"משעמם",ex:"The movie was boring."},{d:2,w:"exciting",m:"מרגש",ex:"What an exciting day!"},{d:2,w:"funny",m:"מצחיק",ex:"He's so funny."},{d:2,w:"strange",m:"מוזר",ex:"That's a strange sound."},{d:2,w:"beautiful",m:"יפה",ex:"What a beautiful view!"},
+{d:2,w:"strong",m:"חזק",ex:"She is very strong."},{d:2,w:"weak",m:"חלש",ex:"I feel weak today."},{d:2,w:"slow",m:"איטי",ex:"A slow walk."},{d:2,w:"fast",m:"מהיר",ex:"A fast runner."},{d:2,w:"high",m:"גבוה",ex:"A high jump."},{d:2,w:"low",m:"נמוך",ex:"A low score."},{d:2,w:"clean",m:"נקי / לנקות",ex:"Clean your room."},{d:2,w:"dirty",m:"מלוכלך",ex:"My shoes are dirty."},{d:2,w:"empty",m:"ריק",ex:"The bottle is empty."},{d:2,w:"full",m:"מלא",ex:"The class is full."},
+{d:2,w:"start",m:"להתחיל",ex:"When do we start?"},{d:2,w:"finish",m:"לסיים",ex:"I finished my work."},{d:2,w:"continue",m:"להמשיך",ex:"Continue practicing."},{d:2,w:"stop",m:"לעצור",ex:"Please stop talking."},{d:2,w:"wait",m:"לחכות",ex:"Wait for me!"},{d:2,w:"ask",m:"לשאול",ex:"Ask the teacher."},{d:2,w:"answer",m:"תשובה / לענות",ex:"What's the answer?"},{d:2,w:"learn",m:"ללמוד",ex:"I want to learn English."},{d:2,w:"teach",m:"ללמד",ex:"She teaches yoga."},{d:2,w:"remember",m:"לזכור",ex:"Remember to call me."},
+{d:2,w:"forget",m:"לשכוח",ex:"Don't forget your bag."},{d:2,w:"understand",m:"להבין",ex:"I don't understand."},{d:2,w:"explain",m:"להסביר",ex:"Please explain."},{d:2,w:"tell",m:"לספר / להגיד",ex:"Tell me about it."},{d:2,w:"say",m:"להגיד",ex:"What did you say?"},{d:2,w:"talk",m:"לדבר",ex:"Let's talk later."},{d:2,w:"call",m:"להתקשר / לקרוא",ex:"Call me tonight."},{d:2,w:"meet",m:"לפגוש",ex:"Meet me at 6."},{d:2,w:"visit",m:"לבקר",ex:"Visit your grandma."},{d:2,w:"invite",m:"להזמין (אורח)",ex:"Invite her to the party."},
+{d:2,w:"happy",m:"שמח",ex:"I'm so happy!"},{d:2,w:"sad",m:"עצוב",ex:"Don't be sad."},{d:2,w:"angry",m:"כועס",ex:"She was angry."},{d:2,w:"surprised",m:"מופתע",ex:"I was surprised."},{d:2,w:"worried",m:"מודאג",ex:"Don't be worried."},{d:2,w:"scared",m:"מפוחד",ex:"The dog is scared."},{d:2,w:"excited",m:"נרגש",ex:"I'm excited to travel."},{d:2,w:"bored",m:"משועמם",ex:"I'm bored at home."},{d:2,w:"proud",m:"גאה",ex:"I'm proud of you."},{d:2,w:"lucky",m:"בר מזל",ex:"You're so lucky."},
+{d:2,w:"price",m:"מחיר",ex:"What's the price?"},{d:2,w:"cheap",m:"זול",ex:"This shirt is cheap."},{d:2,w:"expensive",m:"יקר",ex:"That bag is expensive."},{d:2,w:"free",m:"חינם",ex:"This sample is free."},{d:2,w:"pay",m:"לשלם",ex:"Where do I pay?"},{d:2,w:"cost",m:"לעלות / עלות",ex:"How much does it cost?"},{d:2,w:"spend",m:"להוציא (כסף)",ex:"I spent too much."},{d:2,w:"save",m:"לחסוך",ex:"Save your money."},{d:2,w:"send",m:"לשלוח",ex:"Send me the address."},{d:2,w:"order",m:"להזמין",ex:"I'd like to order."},
+{d:2,w:"win",m:"לנצח",ex:"She wants to win."},{d:2,w:"lose",m:"להפסיד / לאבד",ex:"Don't lose hope."},{d:2,w:"try",m:"לנסות",ex:"Just try your best."},{d:2,w:"help",m:"לעזור / עזרה",ex:"Can you help me?"},{d:2,w:"hope",m:"תקווה / לקוות",ex:"I hope to see you."},{d:2,w:"agree",m:"להסכים",ex:"I totally agree."},{d:2,w:"think",m:"לחשוב",ex:"I think so too."},{d:2,w:"believe",m:"להאמין",ex:"I believe in you."},{d:2,w:"feel",m:"להרגיש",ex:"I feel great!"},{d:2,w:"smile",m:"חיוך / לחייך",ex:"Give me a smile."},
+{d:2,w:"hobby",m:"תחביב",ex:"What's your hobby?"},{d:2,w:"travel",m:"לטייל / נסיעה",ex:"I love to travel."},{d:2,w:"country",m:"מדינה",ex:"Which country?"},{d:2,w:"city",m:"עיר",ex:"This city is beautiful."},{d:2,w:"language",m:"שפה",ex:"English is a language."},{d:2,w:"world",m:"עולם",ex:"It's a small world."},{d:2,w:"people",m:"אנשים",ex:"Many people came."},{d:2,w:"life",m:"חיים",ex:"Life is beautiful."},{d:2,w:"way",m:"דרך",ex:"Which way to the gym?"},{d:2,w:"place",m:"מקום",ex:"What a nice place!"},
+{d:2,w:"thing",m:"דבר",ex:"What's that thing?"},{d:2,w:"problem",m:"בעיה",ex:"No problem!"},{d:2,w:"idea",m:"רעיון",ex:"Great idea!"},{d:2,w:"reason",m:"סיבה",ex:"What's the reason?"},{d:2,w:"example",m:"דוגמה",ex:"Give me an example."},{d:2,w:"question",m:"שאלה",ex:"Any questions?"},{d:2,w:"news",m:"חדשות",ex:"Good news!"},{d:2,w:"information",m:"מידע",ex:"More information, please."},{d:2,w:"number",m:"מספר",ex:"What's your number?"},{d:2,w:"letter",m:"מכתב / אות",ex:"I got a letter."},
+/* ═══ LEVEL 3 — ELEMENTARY (kept ~15%, mostly new) ═══ */
+/* kept */
+{d:3,w:"routine",m:"שגרה / מופע",ex:"Her routine was beautiful."},{d:3,w:"discount",m:"הנחה",ex:"30% discount today."},{d:3,w:"balance",m:"איזון",ex:"Balance is key in gymnastics."},{d:3,w:"recommend",m:"להמליץ",ex:"I recommend this place."},{d:3,w:"competition",m:"תחרות",ex:"The competition is next week."},{d:3,w:"comfortable",m:"נוח",ex:"These shoes are comfortable."},{d:3,w:"improve",m:"לשפר",ex:"I want to improve."},{d:3,w:"customer",m:"לקוח",ex:"The customer is always right."},
+/* new L3 */
+{d:3,w:"flexibility",m:"גמישות",ex:"She has great flexibility."},{d:3,w:"performance",m:"הופעה / ביצועים",ex:"Great performance!"},{d:3,w:"schedule",m:"לוח זמנים",ex:"Check today's schedule."},{d:3,w:"prepare",m:"להתכונן",ex:"Prepare for the exam."},{d:3,w:"achieve",m:"להשיג",ex:"She achieved her goal."},{d:3,w:"compare",m:"להשוות",ex:"Compare the prices."},{d:3,w:"deliver",m:"למסור / לשלוח",ex:"Can you deliver it?"},{d:3,w:"quality",m:"איכות",ex:"High quality cotton."},{d:3,w:"available",m:"זמין",ex:"Is this available?"},{d:3,w:"popular",m:"פופולרי",ex:"A popular brand."},
+{d:3,w:"strength",m:"כוח",ex:"She has great strength."},{d:3,w:"muscle",m:"שריר",ex:"My muscles are sore."},{d:3,w:"injury",m:"פציעה",ex:"She recovered from injury."},{d:3,w:"protein",m:"חלבון",ex:"Eat enough protein."},{d:3,w:"energy",m:"אנרגיה",ex:"I need energy."},{d:3,w:"vitamin",m:"ויטמין",ex:"Take your vitamins."},{d:3,w:"exercise",m:"תרגיל / להתאמן",ex:"Daily exercise."},{d:3,w:"breathe",m:"לנשום",ex:"Remember to breathe."},{d:3,w:"relax",m:"להירגע",ex:"Try to relax."},{d:3,w:"sweat",m:"להזיע / זיעה",ex:"I sweat a lot."},
+{d:3,w:"passport",m:"דרכון",ex:"Where's my passport?"},{d:3,w:"reservation",m:"הזמנה מראש",ex:"I have a reservation."},{d:3,w:"departure",m:"יציאה",ex:"Departure is at 6."},{d:3,w:"arrival",m:"הגעה",ex:"Arrival at 3 PM."},{d:3,w:"delay",m:"עיכוב",ex:"A flight delay."},{d:3,w:"currency",m:"מטבע",ex:"Local currency."},{d:3,w:"guide",m:"מדריך",ex:"We hired a guide."},{d:3,w:"crowded",m:"צפוף",ex:"The mall is crowded."},{d:3,w:"souvenir",m:"מזכרת",ex:"Buy a souvenir."},{d:3,w:"luggage",m:"מזוודות",ex:"Don't forget luggage."},
+{d:3,w:"refund",m:"החזר כספי",ex:"Can I get a refund?"},{d:3,w:"return",m:"להחזיר",ex:"I want to return this."},{d:3,w:"exchange",m:"להחליף",ex:"Can I exchange it?"},{d:3,w:"brand",m:"מותג",ex:"What brand is this?"},{d:3,w:"fashion",m:"אופנה",ex:"She loves fashion."},{d:3,w:"online",m:"מקוון",ex:"I shop online."},{d:3,w:"variety",m:"מגוון",ex:"A wide variety."},{d:3,w:"celebrate",m:"לחגוג",ex:"Let's celebrate!"},{d:3,w:"dessert",m:"קינוח",ex:"I want dessert."},{d:3,w:"recipe",m:"מתכון",ex:"Share the recipe."},
+{d:3,w:"effort",m:"מאמץ",ex:"It takes effort."},{d:3,w:"support",m:"תמיכה",ex:"Thanks for the support."},{d:3,w:"grateful",m:"אסיר תודה",ex:"I'm grateful."},{d:3,w:"opportunity",m:"הזדמנות",ex:"A great opportunity."},{d:3,w:"experience",m:"ניסיון / חוויה",ex:"What an experience!"},{d:3,w:"challenge",m:"אתגר",ex:"A big challenge."},{d:3,w:"progress",m:"התקדמות",ex:"Great progress."},{d:3,w:"confident",m:"בטוח בעצמו",ex:"She feels confident."},{d:3,w:"succeed",m:"להצליח",ex:"She will succeed."},{d:3,w:"fail",m:"להיכשל",ex:"Don't fear failure."},
+{d:3,w:"include",m:"לכלול",ex:"Breakfast is included."},{d:3,w:"prefer",m:"להעדיף",ex:"I prefer blue."},{d:3,w:"deserve",m:"מגיע ל",ex:"You deserve the best."},{d:3,w:"manage",m:"לנהל",ex:"She manages the team."},{d:3,w:"express",m:"לבטא",ex:"Express yourself!"},{d:3,w:"attend",m:"להשתתף",ex:"Attend the meeting."},{d:3,w:"notice",m:"לשים לב",ex:"Did you notice?"},{d:3,w:"purpose",m:"מטרה",ex:"What's the purpose?"},{d:3,w:"prevent",m:"למנוע",ex:"Prevent injuries."},{d:3,w:"require",m:"לדרוש",ex:"This requires practice."},
+{d:3,w:"consider",m:"לשקול",ex:"Consider all options."},{d:3,w:"increase",m:"להגדיל",ex:"Increase flexibility."},{d:3,w:"reduce",m:"להפחית",ex:"Reduce sugar intake."},{d:3,w:"avoid",m:"להימנע",ex:"Avoid sugar."},{d:3,w:"announce",m:"להכריז",ex:"Announce the winner."},{d:3,w:"complain",m:"להתלונן",ex:"Don't complain."},{d:3,w:"confirm",m:"לאשר",ex:"Confirm the booking."},{d:3,w:"create",m:"ליצור",ex:"Create a routine."},{d:3,w:"describe",m:"לתאר",ex:"Describe the item."},{d:3,w:"discover",m:"לגלות",ex:"Discover new stores."},
+{d:3,w:"encourage",m:"לעודד",ex:"Encourage each other."},{d:3,w:"familiar",m:"מוכר",ex:"A familiar face."},{d:3,w:"feature",m:"תכונה / מאפיין",ex:"A key feature."},{d:3,w:"fortunate",m:"בר מזל",ex:"She is fortunate."},{d:3,w:"general",m:"כללי",ex:"In general, yes."},{d:3,w:"ignore",m:"להתעלם",ex:"Don't ignore the pain."},{d:3,w:"inspire",m:"להשרות השראה",ex:"She inspires me."},{d:3,w:"lack",m:"חוסר",ex:"A lack of sleep."},{d:3,w:"limit",m:"גבול / להגביל",ex:"Know your limits."},{d:3,w:"mention",m:"להזכיר",ex:"She mentioned it."},
+{d:3,w:"replace",m:"להחליף",ex:"Replace your shoes."},{d:3,w:"hydrated",m:"שתיית מים מספקת",ex:"Stay well hydrated."},{d:3,w:"organic",m:"אורגני",ex:"Organic vegetables."},{d:3,w:"vegetarian",m:"צמחוני",ex:"A vegetarian meal."},{d:3,w:"professional",m:"מקצועי",ex:"A professional coach."},{d:3,w:"amateur",m:"חובב",ex:"An amateur athlete."},{d:3,w:"equipment",m:"ציוד",ex:"Gym equipment."},{d:3,w:"essential",m:"חיוני",ex:"Water is essential."},{d:3,w:"natural",m:"טבעי",ex:"A natural skill."},{d:3,w:"talented",m:"מוכשר",ex:"She's very talented."},
+{d:3,w:"warm-up",m:"חימום",ex:"Always do a warm-up."},{d:3,w:"cool-down",m:"שחרור (אחרי אימון)",ex:"Don't skip cool-down."},{d:3,w:"workout",m:"אימון",ex:"A great workout."},{d:3,w:"session",m:"מפגש / אימון",ex:"A long training session."},{d:3,w:"technique",m:"טכניקה",ex:"Perfect your technique."},{d:3,w:"posture",m:"תנוחה",ex:"Keep good posture."},{d:3,w:"focus",m:"מיקוד",ex:"Stay focused."},{d:3,w:"goal",m:"מטרה",ex:"Set a clear goal."},{d:3,w:"achievement",m:"הישג",ex:"A great achievement."},{d:3,w:"motivation",m:"מוטיבציה",ex:"Find your motivation."},
+/* ═══ LEVEL 4 — INTERMEDIATE (trimmed) ═══ */
+{d:4,w:"apparatus",m:"מכשיר (התעמלות)",ex:"The ribbon is an apparatus."},{d:4,w:"nutrition",m:"תזונה",ex:"Good nutrition helps."},{d:4,w:"significant",m:"משמעותי",ex:"A significant improvement."},{d:4,w:"purchase",m:"לרכוש",ex:"Thank you for your purchase."},{d:4,w:"demonstrate",m:"להדגים",ex:"Demonstrate the technique."},{d:4,w:"evaluate",m:"להעריך",ex:"Judges evaluate the routine."},{d:4,w:"sufficient",m:"מספיק",ex:"Sufficient rest is essential."},{d:4,w:"recovery",m:"החלמה",ex:"Recovery takes time."},{d:4,w:"strategy",m:"אסטרטגיה",ex:"A winning strategy."},{d:4,w:"establish",m:"להקים / לבסס",ex:"Establish a routine."},
+{d:4,w:"maintain",m:"לתחזק / לשמר",ex:"Maintain your flexibility."},{d:4,w:"obtain",m:"להשיג",ex:"Obtain a higher score."},{d:4,w:"determine",m:"לקבוע",ex:"Judges determine the score."},{d:4,w:"emphasis",m:"דגש",ex:"Greater emphasis on variety."},{d:4,w:"modify",m:"לשנות",ex:"Modify the routine."},{d:4,w:"element",m:"אלמנט",ex:"Add more body elements."},{d:4,w:"intensity",m:"עוצמה",ex:"High training intensity."},{d:4,w:"endurance",m:"סיבולת",ex:"Build your endurance."},{d:4,w:"alternative",m:"חלופה",ex:"Is there an alternative?"},{d:4,w:"evidence",m:"ראיות / עדות",ex:"Scientific evidence."},
+{d:4,w:"influence",m:"השפעה",ex:"A positive influence."},{d:4,w:"perspective",m:"נקודת מבט",ex:"From her perspective."},{d:4,w:"principle",m:"עיקרון",ex:"Basic principles."},{d:4,w:"procedure",m:"הליך",ex:"Follow the procedure."},{d:4,w:"relevant",m:"רלוונטי",ex:"Is this relevant?"},{d:4,w:"essential",m:"חיוני",ex:"Rest is essential."},{d:4,w:"inevitable",m:"בלתי נמנע",ex:"Mistakes are inevitable."},{d:4,w:"severe",m:"חמור",ex:"A severe injury."},{d:4,w:"enhance",m:"לשפר",ex:"Enhance your skills."},{d:4,w:"generate",m:"ליצור",ex:"Generate more power."},
+{d:4,w:"integrate",m:"לשלב",ex:"Integrate dance and apparatus."},{d:4,w:"specify",m:"לפרט",ex:"Specify the details."},{d:4,w:"acknowledge",m:"להכיר ב",ex:"Acknowledge the effort."},{d:4,w:"component",m:"מרכיב",ex:"A key component."},{d:4,w:"estimate",m:"להעריך / אומדן",ex:"Estimate the cost."},{d:4,w:"illustrate",m:"להמחיש",ex:"Illustrate the point."},{d:4,w:"adapt",m:"להסתגל",ex:"Adapt to changes."},{d:4,w:"assess",m:"להעריך",ex:"Assess the damage."},{d:4,w:"impact",m:"השפעה",ex:"A positive impact."},{d:4,w:"insight",m:"תובנה",ex:"A valuable insight."},
+/* ═══ LEVEL 5 — UPPER-INT (trimmed) ═══ */
+{d:5,w:"coordination",m:"קואורדינציה",ex:"Exceptional coordination."},{d:5,w:"criteria",m:"קריטריונים",ex:"Scoring criteria."},{d:5,w:"execution",m:"ביצוע",ex:"Flawless execution."},{d:5,w:"consumer",m:"צרכן",ex:"Consumer spending."},{d:5,w:"anticipate",m:"לצפות",ex:"Anticipate the music."},{d:5,w:"attribute",m:"לייחס / תכונה",ex:"Attribute success to training."},{d:5,w:"comprehensive",m:"מקיף",ex:"A comprehensive warm-up."},{d:5,w:"controversy",m:"מחלוקת",ex:"Scoring controversy."},{d:5,w:"deteriorate",m:"להידרדר",ex:"Performance deteriorated."},{d:5,w:"differentiate",m:"להבחין",ex:"Differentiate between styles."},
+{d:5,w:"hypothesis",m:"השערה",ex:"Test the hypothesis."},{d:5,w:"implication",m:"השלכה",ex:"Training implications."},{d:5,w:"incorporate",m:"לשלב",ex:"Incorporate new elements."},{d:5,w:"manipulate",m:"לתפעל",ex:"Manipulate the apparatus."},{d:5,w:"maximize",m:"למקסם",ex:"Maximize your score."},{d:5,w:"minimize",m:"למזער",ex:"Minimize deductions."},{d:5,w:"perceive",m:"לתפוס",ex:"How judges perceive artistry."},{d:5,w:"simulate",m:"לדמות",ex:"Simulate competition."},{d:5,w:"subsequent",m:"עוקב",ex:"Subsequent rounds."},{d:5,w:"underlying",m:"בסיסי",ex:"Underlying issues."},
+{d:5,w:"coherent",m:"קוהרנטי",ex:"A coherent routine."},{d:5,w:"complement",m:"להשלים",ex:"Dance complements gymnastics."},{d:5,w:"empirical",m:"אמפירי",ex:"Empirical evidence."},{d:5,w:"facilitate",m:"להקל",ex:"Facilitate learning."},{d:5,w:"magnitude",m:"גודל / עוצמה",ex:"The magnitude of the event."},{d:5,w:"methodology",m:"מתודולוגיה",ex:"Training methodology."},{d:5,w:"phenomenon",m:"תופעה",ex:"A global phenomenon."},{d:5,w:"rationale",m:"הנמקה",ex:"What's the rationale?"},{d:5,w:"reinforce",m:"לחזק",ex:"Reinforce good habits."},{d:5,w:"trajectory",m:"מסלול",ex:"Career trajectory."},
+/* ═══ LEVEL 6 — ADVANCED (trimmed) ═══ */
+{d:6,w:"proprioceptive",m:"פרופריוספטיבי",ex:"Proprioceptive training."},{d:6,w:"unprecedented",m:"חסר תקדים",ex:"Unprecedented scores."},{d:6,w:"dichotomy",m:"דיכוטומיה",ex:"A false dichotomy."},{d:6,w:"ubiquitous",m:"נמצא בכל מקום",ex:"Ubiquitous smartphones."},{d:6,w:"corroborate",m:"לאשש",ex:"Corroborate the findings."},{d:6,w:"exacerbate",m:"להחמיר",ex:"Stress exacerbates injury."},{d:6,w:"meticulous",m:"קפדני",ex:"Meticulous preparation."},{d:6,w:"paradigm",m:"פרדיגמה",ex:"A paradigm shift."},{d:6,w:"tangible",m:"מוחשי",ex:"Tangible results."},{d:6,w:"unequivocal",m:"חד-משמעי",ex:"Unequivocal success."},
+{d:6,w:"benevolent",m:"נדיב / טוב לב",ex:"A benevolent coach."},{d:6,w:"disparate",m:"שונה מאוד",ex:"Disparate scoring systems."},{d:6,w:"multifaceted",m:"רב-פנים",ex:"A multifaceted challenge."},{d:6,w:"obsolete",m:"מיושן",ex:"Obsolete retail models."},{d:6,w:"pragmatic",m:"פרגמטי",ex:"A pragmatic approach."},{d:6,w:"reconcile",m:"ליישב",ex:"Reconcile differences."},{d:6,w:"transcend",m:"לחרוג",ex:"Transcend limitations."},{d:6,w:"undermine",m:"לערער",ex:"Don't undermine confidence."},{d:6,w:"alleviate",m:"להקל",ex:"Alleviate the pain."},{d:6,w:"mitigate",m:"למתן",ex:"Mitigate the damage."},
+{d:6,w:"impeccable",m:"ללא דופי",ex:"Impeccable technique."},{d:6,w:"innate",m:"מולד",ex:"Innate talent."},{d:6,w:"proliferation",m:"התרבות / ריבוי",ex:"Proliferation of e-commerce."},{d:6,w:"substantiate",m:"לבסס",ex:"Substantiate the claim."},{d:6,w:"predilection",m:"נטייה",ex:"A predilection for risk."},{d:6,w:"efficacy",m:"יעילות",ex:"Proven efficacy."},{d:6,w:"discrepancy",m:"אי-התאמה / פער",ex:"A scoring discrepancy."},
 ];
 
 /* ═══════════════════════════════════════════
-   VOCAB FLASHCARDS — Level-based + Spaced Repetition
+   VOCAB FLASHCARDS — 6 level tabs + manual refresh
    ═══════════════════════════════════════════ */
 let vDir='en',vPool=[],vi=0,revealed=false,vocabLevel=1;
 
@@ -729,16 +860,37 @@ function setVLvl(lv){
 function setVDir(d){vDir=d;document.querySelectorAll('#vDirRow .toggle-btn').forEach(b=>b.classList.remove('act'));event.target.classList.add('act');initV()}
 
 function initV(){
+  // Tick down the spaced-repetition counters
   for(const w in D.vKnown){D.vKnown[w]--;if(D.vKnown[w]<=0)delete D.vKnown[w]}
   for(const w in D.vUnknown){D.vUnknown[w]--;if(D.vUnknown[w]<=0)delete D.vUnknown[w]}
   sv();
-  // Filter by selected level, exclude recently-known
+  // Build the pool from the current level, excluding recently-known words
   let pool=VB.filter(v=>v.d===vocabLevel&&!D.vKnown[v.w]);
   const unknownDue=pool.filter(v=>D.vUnknown[v.w]!==undefined&&D.vUnknown[v.w]<=0);
   const others=pool.filter(v=>!D.vUnknown[v.w]||D.vUnknown[v.w]>0);
   vPool=[...unknownDue.sort(()=>Math.random()-.5),...others.sort(()=>Math.random()-.5)];
   vi=0;revealed=false;showVC();
 }
+
+/* MANUAL REFRESH BUTTON — clears the "known" cache for the CURRENT
+   level only, then reshuffles. Lika can use this whenever she wants
+   a totally fresh batch instead of waiting for spaced repetition. */
+function refreshVocab(){
+  const lvWords=VB.filter(v=>v.d===vocabLevel).map(v=>v.w);
+  let cleared=0;
+  lvWords.forEach(w=>{
+    if(D.vKnown[w]){delete D.vKnown[w];cleared++;}
+    if(D.vUnknown[w]){delete D.vUnknown[w];cleared++;}
+  });
+  sv();
+  // Reshuffle and start fresh
+  vi=0;revealed=false;
+  let pool=VB.filter(v=>v.d===vocabLevel);
+  vPool=pool.sort(()=>Math.random()-.5);
+  showVC();
+  toast(`🌸 רענון! ${vPool.length} מילים חדשות`,'ok');
+}
+
 function showVC(){
   if(!vPool.length||vi>=vPool.length){toast('סיימת את כל המילים ברמה הזו! 🎉','ok');vi=0;return}
   const v=vPool[vi];revealed=false;
@@ -764,12 +916,11 @@ function nextV(){vi++;if(vi>=vPool.length){toast('סיימת! 🎉','ok');D.dd++
 function vAns(knew){
   const w=vPool[vi].w,m=vPool[vi].m;
   if(knew){D.vKnown[w]=30;delete D.vUnknown[w];D.xp+=3;toast('!מעולה 🌟','ok');}
-  else{D.vUnknown[w]=8;if(!D.uwBank.some(x=>x.w===w))D.uwBank.push({w,m});toast('תחזור אליה 💪','no');}
+  else{D.vUnknown[w]=8;if(!D.uwBank.some(x=>(typeof x==='string'?x:x.w)===w))D.uwBank.push({w,m});toast('תחזור אליה 💪','no');}
   sv();updUI();vi++;
   if(vi>=vPool.length){D.dd++;sv();updUI();toast('סיימת! 🎉','ok');vi=0;}
   showVC();
 }
-function flipC(){if(!revealed)revealV()}
 
 /* ═══════════════════════════════════════════
    MY SAVED WORDS + Manual Add
@@ -794,7 +945,7 @@ function addManualWord(){
   if(!en&&!he){toast('רשמי לפחות מילה אחת','no');return}
   const word=en||he;
   const meaning=en?he:(he?en:'');
-  if(D.uwBank.some(x=>x.w.toLowerCase()===word.toLowerCase())){toast('המילה כבר שמורה!','no');return}
+  if(D.uwBank.some(x=>(typeof x==='string'?x:x.w).toLowerCase()===word.toLowerCase())){toast('המילה כבר שמורה!','no');return}
   D.uwBank.push({w:word,m:meaning});
   sv();renderUW();
   enInput.value='';heInput.value='';
