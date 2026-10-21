@@ -14,6 +14,9 @@
  *   "_state"  — the app's saved progress (do not edit)
  */
 
+// ⬇️ IMPORTANT: replace XXXX with Lika's PIN (keep the quotes). Requests without it are rejected.
+const PIN = 'XXXX';
+
 const TZ = 'Asia/Jerusalem';
 const CHUNK = 40000; // max characters per cell is 50,000
 
@@ -76,6 +79,7 @@ function saveState_(state) {
 /* GET: returns the saved progress + the message for Lika */
 function doGet(e) {
   setup_();
+  if (String((e.parameter || {}).pin || '') !== PIN) return json_({ ok: false, error: 'bad pin' });
   return json_({ ok: true, state: loadState_(), message: message_() });
 }
 
@@ -86,6 +90,7 @@ function doPost(e) {
   lock.waitLock(15000);
   try {
     const body = JSON.parse(e.postData.contents || '{}');
+    if (String(body.pin || '') !== PIN) return json_({ ok: false, error: 'bad pin' });
     if (body.state) {
       const cur = loadState_();
       // last write wins — only overwrite with a newer copy

@@ -267,6 +267,19 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .chart svg{width:100%;height:auto;direction:ltr}
 .empty{text-align:center;color:var(--g400);font-size:.82rem;padding:14px}
 @media(max-width:600px){.kpis{grid-template-columns:repeat(2,1fr)}}
+/* PIN lock */
+.lock{position:fixed;inset:0;z-index:300;background:linear-gradient(135deg,rgba(239,246,255,.97),rgba(253,242,248,.97));backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.lockc{background:var(--w);border-radius:var(--rx);box-shadow:var(--shl);padding:28px 22px;max-width:340px;width:100%;text-align:center}
+.lockc .em{font-size:2.6rem;margin-bottom:6px}
+.lockc h2{font-family:'Secular One',sans-serif;color:var(--b7);font-size:1.2rem;margin-bottom:4px}
+.lockc p{font-size:.82rem;color:var(--g500);margin-bottom:14px}
+.lockc input{width:170px;text-align:center;font-size:1.6rem;letter-spacing:12px;padding:10px;border:2px solid var(--b3);border-radius:var(--r);font-family:'Nunito',sans-serif;direction:ltr}
+.lockc input:focus{outline:none;border-color:var(--pkd)}
+.lockc .err{color:var(--pkd);font-size:.78rem;min-height:18px;margin-top:6px}
+.lockc .gl{display:block;margin-top:14px;font-size:.78rem;color:var(--g400);background:none;border:none;cursor:pointer;text-decoration:underline;font-family:inherit;width:100%}
+.shake{animation:shk .4s}
+@keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.guest{display:none;background:#FFFBEB;border:1px solid var(--gold);color:#92400E;border-radius:var(--r);padding:8px 12px;font-size:.78rem;text-align:center;margin-bottom:12px;cursor:pointer}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -279,7 +292,12 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 </div>
 <div id="tst" class="tst"></div>
 <div id="cnf" class="cnf"></div>
+<div class="lock" id="lock"><div class="lockc"><div class="em">🎀</div><h2>היי ליקה!</h2><p>הזיני את הקוד שלך כדי לפתוח את ההתקדמות שלך</p>
+  <input id="pinIn" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••" onkeydown="if(event.key==='Enter')tryPin()" oninput="if(this.value.length===4)tryPin()">
+  <div class="err" id="pinErr"></div><button class="cb pk" onclick="tryPin()">כניסה 🔓</button>
+  <button class="gl" onclick="asGuest()">להמשיך כאורח/ת (בלי שמירת התקדמות)</button></div></div>
 <div class="app">
+<div class="guest" id="guestBar" onclick="showLock()">👀 מצב אורח — שום דבר לא נשמר. ליקה? לחצי כאן להזנת הקוד</div>
 <header class="tb">
   <div class="logo"><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 21 L10 12" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M10 12 C13 5 21 6 19 11 C17 16 11 14 14 9 C16 6 20 8 20 12" fill="none" stroke="#FBCFE8" stroke-width="2.4" stroke-linecap="round"/></svg></div><span>Lika's Project</span></div>
   <div class="sts"><div class="si" title="רצף ימים">🔥<span id="sStr">0</span></div><div class="si" title="נקודות">⭐<span id="sXP">0</span></div><div class="si" title="דרגה">🏅<span id="sLv">1</span></div><span class="sync" id="syncPill" onclick="syncNow(true)" title="סנכרון לענן" style="display:none">☁️</span></div>
@@ -435,6 +453,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   <div class="card"><div class="h4">🗓️ ימי אימון (5 שבועות אחרונים)</div><div class="cal" id="pCal"></div></div>
   <div class="card loglist"><div class="h4">📝 יומן אימונים</div><div id="pLog"></div></div>
   <div class="card"><div class="h4">⚙️ הגדרות וגיבוי</div>
+    <p id="authInfo" style="font-size:.8rem;color:var(--g600);margin-bottom:10px;text-align:center"></p>
     <p style="font-size:.76rem;color:var(--g500);margin-bottom:8px">כתובת סנכרון לענן (Google Sheet):</p>
     <div style="display:flex;gap:6px;margin-bottom:6px"><input id="syncUrl" class="inp" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec" style="text-align:left;font-size:.75rem"><button class="cb2 pri" onclick="saveSyncUrl()">שמירה</button></div>
     <p id="syncInfo" style="font-size:.72rem;color:var(--g400);margin-bottom:12px"></p>
@@ -478,8 +497,18 @@ const DEFAULT_LOVE='חיים שלי זה קטן עלייך, מאמין בך וא
    Everything lives in object D, saved to localStorage (prefix "lp_")
    and mirrored to the Google Sheet when a sync URL is set.
    ═══════════════════════════════════════════ */
-const G=k=>{try{return localStorage.getItem('lp_'+k)}catch(e){return null}};
-const W=(k,v)=>{try{localStorage.setItem('lp_'+k,typeof v==='object'?JSON.stringify(v):v)}catch(e){}};
+/* ── PIN LOCK ──
+   With the right PIN, progress is read/written in localStorage ("lp_" keys) and synced
+   to the cloud. Without it (guest mode) the site works, but everything goes to
+   sessionStorage ("lpg_") and disappears when the tab closes — Lika's stats stay clean.
+   Only a fingerprint of the PIN is in this file; the Sheet script checks the real PIN. */
+const PIN_H='q11bnwbo';
+const pinHash=s=>{let h=0;s='lika-pin:'+s;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return 'q'+(h>>>0).toString(36)};
+const LS=(()=>{try{return localStorage}catch(e){return null}})();
+const AUTH=!!LS&&LS.getItem('lp_auth')===PIN_H;
+const STORE=AUTH?LS:(()=>{try{return sessionStorage}catch(e){return null}})(),PFX=AUTH?'lp_':'lpg_';
+const G=k=>{try{return STORE.getItem(PFX+k)}catch(e){return null}};
+const W=(k,v)=>{try{STORE.setItem(PFX+k,typeof v==='object'?JSON.stringify(v):v)}catch(e){}};
 const J=(k,fb)=>{try{const v=G(k);return v?JSON.parse(v):fb}catch(e){return fb}};
 const NUMS=['xp','str','dd','lc','lr','lrd','le','lv','vlv','vtick','upd'];
 const D={xp:+(G('xp')||0),str:+(G('str')||0),ld:G('ld')||'',dd:+(G('dd')||0),ddDay:G('ddDay')||'',
@@ -1053,6 +1082,7 @@ function renderProg(){
   document.getElementById('pCal').innerHTML=['א','ב','ג','ד','ה','ו','ש'].map(x=>`<div style="background:none;font-weight:700">${x}</div>`).join('')+cells.join('');
   document.getElementById('pLog').innerHTML=D.log.length?D.log.slice(-25).reverse().map(l=>{const d=new Date(l.t);return `<div class="li2"><span>${d.getDate()}/${d.getMonth()+1} · ${TYPE_NM[l.type]||l.type}${l.lv?' · '+LVS[l.lv-1].nm:''}</span><span>${l.n?`${l.c}/${l.n}`:''} · ${l.mins} דק'${l.est?` · 🎯${l.est}`:''}</span></div>`}).join(''):'<div class="empty">עוד אין אימונים — יאללה מתחילות! 🤸‍♀️</div>';
   document.getElementById('syncUrl').value=G('syncUrl')||'';
+  document.getElementById('authInfo').innerHTML=AUTH?'🔓 מחוברת עם PIN · <a href="#" onclick="logout();return false">התנתקות</a>':'👀 מצב אורח — <a href="#" onclick="showLock();return false">כניסה עם PIN</a>';
   document.getElementById('syncInfo').textContent=syncUrl()?(G('lastSync')?`סונכרן לאחרונה: ${new Date(+G('lastSync')).toLocaleString('he-IL')}`:'מחובר, עוד לא סונכרן'):'לא מחובר — ההתקדמות נשמרת רק במכשיר הזה';
 }
 function toggleDone(k){D.doneLv[k]=!D.doneLv[k];if(!D.doneLv[k])delete D.doneLv[k];else{toast('כל הכבוד! ✅','ok');confetti()}sv();renderProg()}
@@ -1079,7 +1109,7 @@ function weekChart(){
      so nothing is lost offline.
    - text/plain body avoids the CORS preflight that Apps Script can't answer.
    ═══════════════════════════════════════════ */
-function syncUrl(){return G('syncUrl')||DEFAULT_SYNC_URL}
+function syncUrl(){return AUTH?(G('syncUrl')||DEFAULT_SYNC_URL):''}
 function queueEvent(ev){ev.time=Date.now();const q=J('evq',[]);q.push(ev);W('evq',q);schedSync(1500)}
 function schedSync(ms){if(!syncUrl())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow(false),ms||4000)}
 function setPill(state,txt){const p=document.getElementById('syncPill');if(!syncUrl()){p.style.display='none';return}p.style.display='inline-block';p.className='sync '+state;p.textContent=txt}
@@ -1097,7 +1127,7 @@ async function syncNow(manual){
   const url=syncUrl();if(!url||syncing)return;syncing=true;setPill('','⏳');
   const evq=J('evq',[]);
   try{
-    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({state:stateForCloud(),events:evq,summary:summary()})});
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({pin:G('pin')||'',state:stateForCloud(),events:evq,summary:summary()})});
     const r=await res.json();
     if(!r.ok)throw new Error(r.error||'sync failed');
     const left=J('evq',[]).slice(evq.length);W('evq',left); /* keep events added during the request */
@@ -1109,7 +1139,8 @@ async function syncNow(manual){
 async function syncLoad(){
   const url=syncUrl();if(!url)return;setPill('','⏳');
   try{
-    const r=await (await fetch(url)).json();
+    const r=await (await fetch(url+(url.includes('?')?'&':'?')+'pin='+encodeURIComponent(G('pin')||''))).json();
+    if(r.ok===false)throw new Error(r.error);
     if(r.message){W('love',r.message);setLove(r.message)}
     if(r.state&&(r.state.upd||0)>D.upd){ /* cloud is newer (other device) → take it */
       for(const k of Object.keys(r.state))if(k in D){D[k]=r.state[k];W(k,D[k])}
@@ -1138,6 +1169,17 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 /* PWA: offline + "add to home screen" */
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+/* Lock screen logic */
+function tryPin(){
+  const inp=document.getElementById('pinIn'),v=inp.value.trim();
+  if(pinHash(v)===PIN_H){LS.setItem('lp_auth',PIN_H);LS.setItem('lp_pin',v);location.reload();}
+  else{inp.value='';inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),500);document.getElementById('pinErr').textContent='קוד שגוי, נסי שוב';}
+}
+function asGuest(){try{sessionStorage.setItem('lpg_guest','1')}catch(e){}document.getElementById('lock').style.display='none';document.getElementById('guestBar').style.display='block'}
+function showLock(){document.getElementById('lock').style.display='flex';setTimeout(()=>document.getElementById('pinIn').focus(),100)}
+function logout(){if(!confirm('להתנתק במכשיר הזה? ההתקדמות נשארת שמורה בענן ובמכשיר.'))return;LS.removeItem('lp_auth');LS.removeItem('lp_pin');location.reload()}
+if(!AUTH){if(G('guest'))document.getElementById('guestBar').style.display='block';else showLock();}
 
 /* INIT */
 setLove();updUI();syncLoad();
